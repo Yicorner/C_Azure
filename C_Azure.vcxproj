@@ -132,11 +132,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CallIntrinsics.cpp" />
     <ClCompile Include="GetCords.cpp" />
+    <ClCompile Include="getSample.cpp" />
+    <ClCompile Include="getSample.hpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processImage.cpp" />
+    <ClCompile Include="realTimeDisplay.cpp" />
+    <ClCompile Include="realTimeDisplay.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CalIntrinsics.hpp" />
     <ClInclude Include="GetCords.hpp" />
     <ClInclude Include="processImage.hpp" />
   </ItemGroup>

@@ -24,12 +24,30 @@
     <ClCompile Include="GetCords.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CallIntrinsics.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="realTimeDisplay.hpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="realTimeDisplay.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="getSample.hpp">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="getSample.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="processImage.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GetCords.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CalIntrinsics.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

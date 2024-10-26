@@ -1,5 +1,9 @@
 #include "processImage.hpp"
-
+#include <opencv2/opencv.hpp>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
 
 void process_depth_image(int image_id) {
     // 定义深度图像尺寸
