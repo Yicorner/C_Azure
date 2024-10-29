@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+captures/
+FROM_FILE/
+imageBlend/
+rendered-image/
+static_test_image_for_opencv/
+stored/
+verify_color_image/
