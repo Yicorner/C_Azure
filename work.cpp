@@ -12,54 +12,45 @@
 
 void Work::run(GetSample& sample)
 {
+	// inital a object of RendererGUI for volume rendering
     RendererGUI vr(1440, 810, "Volume-Renderer");
     vr.setShaderAndData();
+	// inital a object of k4a::capture for capture both color and depth iamge
     k4a::capture capture;
-    int id = 0;
+	// this id is used to save the image and txt file to debug
     while (1) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         if (state == FROM_FILE) {
             /*
-                调试状态，从文件中读取
+				调试状态，从文件中读取图片，然后进行处理。
             */
             body3Dlocation_list.clear();
             const std::string color_filename = "D:\\data\\project\\VisualStudio\\C_Azure\\FROM_FILE\\color_5.png";
 			const std::string depth_filename = "D:\\data\\project\\VisualStudio\\C_Azure\\FROM_FILE\\depth_5.raw";
+            // get body3Dlocation_list
             k4a::image color_image = convert_file2image(color_filename);
 			get_body_location(color_image);
 			for (int i = 0; i < bodylocation_list.size(); i++) {
-				body3Dlocation_list.push_back(get_cords(*device, *config, bodylocation_list[i].first, bodylocation_list[i].second, depth_filename));
+				get_cords_with_filename(*device, *config, bodylocation_list[i].first, bodylocation_list[i].second, depth_filename, body3Dlocation_list);
 			}
-            // 输出body3Dlocation_list
             resort_3D_bodylocation_list();
-            std::cout << "body3Dlocation_list: " << std::endl;
-            for (int i = 0; i < body3Dlocation_list.size(); i++) {
-                std::cout << "body3Dlocation_list[" << i << "]: " << body3Dlocation_list[i][0] << " " << body3Dlocation_list[i][1] << " " << body3Dlocation_list[i][2] << std::endl;
-            }
+            // the color image of color_filename is the abdomen of the patient
             bodylocation = BodyLocation::ABDOMEN;
+			// start volume rendering
             vr.run_only_render(bodylocation, body3Dlocation_list, 80, 255, 0.3f);
-            // 得到图片内容
+            // get pointer which point to the CT volume render result
             vr.run_only_image_content();
             unsigned char* CT = vr.volren.img_data_from_core;
+            // blend the color image and the CT volume render result to get the final blend result in variant result
             getResult(CT, color_image, vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y);
-            //展示result
-            cv::imshow("Blended Image", result);
-            cv::waitKey(0);
-            std::this_thread::sleep_for(std::chrono::seconds(1000));
-            /*
-            * the code below for debug to verify the correctness of CT
-            * stbi_flip_vertically_on_write(1);
-            * std::string fn = "D:/data/project/VisualStudio/C_Azure/rendered-image/2.png";
-            * int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
-            * bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
-            */
+            //show final blend result
+            cv::Mat resized_result;
+            cv::resize(result, resized_result, cv::Size(960, 540));
+            cv::imshow("Blended Image", resized_result);
+            cv::moveWindow("Blended Image", 1000, 100);
+            cv::waitKey(30);
         }
         else if (state == DYNAMIC) {
-            /*
-                动态状态，从real-time display中读取图片，然后进行处理。
-                如果识别到三个点，就进行处理。否则不处理。
-            */
-
             if ((*device).get_capture(&capture, std::chrono::milliseconds(5000))) {
                 // Get color image
                 k4a::image color_image = capture.get_color_image();
@@ -67,40 +58,38 @@ void Work::run(GetSample& sample)
                 k4a::image depth_image = capture.get_depth_image();
                 if (color_image && depth_image) {
                     body3Dlocation_list.clear();
-
                     get_body_location(color_image);
                     for (int i = 0; i < bodylocation_list.size(); i++) {
+						// from pixel cordinates in color_image to 3D cordinates in color_image space cordinates
                        get_cords_with_depth_image(*device, *config, bodylocation_list[i].first, bodylocation_list[i].second, depth_image, body3Dlocation_list);
                     }
-
                     int detect_state = resort_3D_bodylocation_list();
-
                     if (detect_state == 1) {
-                        id++;
-
-						// save txt file
-						save_txt_file("D:/data/project/VisualStudio/C_Azure/verify_color_image/bodylocation_" + std::to_string(id) + ".txt", body3Dlocation_list, bodylocation_list);
+                        save_file_id++;
+						// save body3Dlocation_list in txt file
+                        save_body3Dlocation_list_in_txt_file("D:/data/project/VisualStudio/C_Azure/verify_color_image/bodylocation_" + std::to_string(save_file_id) + ".txt", body3Dlocation_list, bodylocation_list);
 						// Save color image
-						save_k4a_color_images(color_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/color_" + std::to_string(id) + ".png");
-						// Save depth image
-						save_depth_image(depth_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(id) + ".raw");
-                        process_depth_image_with_filename("D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(id) + ".png", "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(id) + ".raw");
-                        
-                        
+                        save_k4a_color_image_to_png(color_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/color_" + std::to_string(save_file_id) + ".png");
+						// Save depth image in raw
+						save_depth_image(depth_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".raw");
+						// shift depth raw to png for visualization
+                        process_depth_image_with_filename("D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".png", "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".raw");
+						// start volume rendering
                         bodylocation = BodyLocation::ABDOMEN;
                         vr.run_only_render(bodylocation, body3Dlocation_list, 80, 255, 0.4f);
 						vr.run_only_image_content();
+                        // get pointer which point to the CT volume render result
 						unsigned char* CT = vr.volren.img_data_from_core;
+						// blend the color image and the CT volume render result to get the final blend result in variant result
 						getResult(CT, color_image, vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y);
-						//展示result2
-						cv::Mat result2;
-                        cv::resize(result, result2, cv::Size(960, 540));
-						cv::imshow("Blended Image", result2);
+						//show final blend result
+						cv::Mat resized_result;
+                        cv::resize(result, resized_result, cv::Size(960, 540));
+						cv::imshow("Blended Image", resized_result);
                         cv::moveWindow("Blended Image", 1000, 100);
 						cv::waitKey(30);
-						
-                        // save result
-						save_mat_image(result, "D:/data/project/VisualStudio/C_Azure/verify_color_image/result_" + std::to_string(id) + ".png");
+                        // save final blend result
+						save_mat_image(result, "D:/data/project/VisualStudio/C_Azure/verify_color_image/result_" + std::to_string(save_file_id) + ".png");
 
 						/*
 						* the code below for debug to verify the correctness of CT
@@ -109,14 +98,14 @@ void Work::run(GetSample& sample)
 						* int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
 						* bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
 						*/
+						// save CT volume render image
                         stbi_flip_vertically_on_write(1);
-                        std::string fn = "D:/data/project/VisualStudio/C_Azure/verify_color_image/CT_" + std::to_string(id) + ".png";
+                        std::string fn = "D:/data/project/VisualStudio/C_Azure/verify_color_image/CT_" + std::to_string(save_file_id) + ".png";
                         int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
                         bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
                     }
                     else {
                         std::cout << "未识别到三个点，不进行处理" << std::endl;
-
                     }
                 }
             }
@@ -127,7 +116,7 @@ void Work::run(GetSample& sample)
     }
 }
 
-void Work::save_txt_file(const std::string& filename, const std::vector<std::vector<float>>& body3Dlocation_list, const std::vector<std::pair<int, int>> bodylocation_list) {
+void Work::save_body3Dlocation_list_in_txt_file(const std::string& filename, const std::vector<std::vector<float>>& body3Dlocation_list, const std::vector<std::pair<int, int>> bodylocation_list) {
     // 打开文件
     std::ofstream file(filename);
     if (!file.is_open()) {
@@ -149,10 +138,9 @@ void Work::save_txt_file(const std::string& filename, const std::vector<std::vec
             << body3Dlocation_list[i][1] << " "
             << body3Dlocation_list[i][2] << std::endl;
     }
-
     // 关闭文件
     file.close();
-    std::cout << "txt数据已成功保存到文件: " << filename << std::endl;
+    std::cout << "bodylocation_list与body3Dlocation_list数据已成功保存到文件: " << filename << std::endl;
 }
 void Work::save_mat_image(cv::Mat& mat, const std::string& filename) {
 	// 检查图像是否有效
@@ -160,7 +148,6 @@ void Work::save_mat_image(cv::Mat& mat, const std::string& filename) {
 		std::cerr << "Invalid image provided." << std::endl;
 		return;
 	}
-
 	// 保存图像
 	if (!cv::imwrite(filename, mat)) {
 		std::cerr << "Failed to save image to " << filename << std::endl;
@@ -179,16 +166,17 @@ void Work::save_depth_image(k4a::image& depth_image, const std::string& filename
         int depth_width = depth_image.get_width_pixels();
         int depth_height = depth_image.get_height_pixels();
         size_t depth_size = depth_image.get_size();
-        printf("Depth Image width: %4d, height: %4d, size: %zu\n", depth_width, depth_height, depth_size);
-
         // Save the depth image as a raw file
         std::ofstream depth_file(filename, std::ios::out | std::ios::binary);
         depth_file.write(reinterpret_cast<char*>(depth_buffer), depth_size);
         depth_file.close();
         std::cout << "depth raw Image saved successfully to " << filename << std::endl;
     }
+    else {
+        assert(0 && "depth image is invalid!");
+    }
 }
-void Work::save_k4a_color_images(k4a::image& color_image, const std::string& filename) {
+void Work::save_k4a_color_image_to_png(k4a::image& color_image, const std::string& filename) {
     // 检查图像是否有效
     if (!color_image.is_valid()) {
         std::cerr << "Invalid color image provided." << std::endl;
@@ -212,7 +200,8 @@ void Work::save_k4a_color_images(k4a::image& color_image, const std::string& fil
         std::cout << "Color Image saved successfully to " << filename << std::endl;
     }
 }
-float distance(std::vector<float>& p1, std::vector<float>& p2) {
+
+float Work::distance(std::vector<float>& p1, std::vector<float>& p2) {
     float dx = p1[0] - p2[0];
     float dy = p1[1] - p2[1];
     float dz = p1[2] - p2[2];
@@ -221,18 +210,15 @@ float distance(std::vector<float>& p1, std::vector<float>& p2) {
 
 int Work::resort_3D_bodylocation_list() {
 	/*
-		对人体位置列表进行排序，按照体数据标点顺序。
+		判断3D_bodylocation_list的合法性。返回0代表不合法，返回1代表合法。
 	*/
     using namespace std;
-    if (body3Dlocation_list.size() < 3) {
-        body3Dlocation_list.clear();
-        return 0;
-    }
-    else if(body3Dlocation_list.size() == 3){
+    if(body3Dlocation_list.size() == 3){
+		// 如果我们已经规定了体数据标点与拍摄角度，为了对应体数据标点与拍摄角度，我们需要对body3Dlocation_list进行排序
+        // 目的是让其x降序排序，而body3Dlocation_list本身是正序的，所以这里需要反转一下
         std::reverse(body3Dlocation_list.begin(), body3Dlocation_list.end());
         return 1;
-    }
-    else {
+    }else {
         return 0;
     }
 
@@ -319,9 +305,9 @@ int Work::resort_3D_bodylocation_list() {
 void Work::display_image_from_filename(const std::string& color_filename, const std::string& depth_filename)
 {
     /*
-    just display the color_image from png file.
-       */
-	// 从文件中读取图像
+    * for debug
+    *   just display the color_image and depth_image from png file.
+    */
 	cv::Mat color_image = cv::imread(color_filename, cv::IMREAD_COLOR);
 	cv::Mat depth_image = cv::imread(depth_filename, cv::IMREAD_ANYDEPTH);
 
@@ -346,12 +332,12 @@ void Work::display_image_from_filename(const std::string& color_filename, const 
 void Work::display_image_from_k4aimage(k4a::image& color_image)
 {
     /*
-	    just display the color_image from k4a::image
+    * for debug
+	*    just display the color_image from k4a::image
     */
     if (color_image) {
         // 获取图像的缓冲区指针
         uint8_t* buffer = color_image.get_buffer();
-
         // 获取图像的宽度、高度和步幅（每行的字节数）
         int width = color_image.get_width_pixels();
         int height = color_image.get_height_pixels();
@@ -361,12 +347,8 @@ void Work::display_image_from_k4aimage(k4a::image& color_image)
         // 假设 color_image 是 RGB 图像（每个像素有3个字节）
         cv::Mat image(height, width, CV_8UC4, buffer, stride);  // 假设为 BGRA/RGBA
 
-        // 转换为 BGR 格式，OpenCV 使用 BGR 顺序
-        cv::Mat image_bgr;
-        cv::cvtColor(image, image_bgr, cv::COLOR_BGRA2BGR);
-
         // 使用 OpenCV 显示图像
-        cv::imshow("k4a Color Image in work ", image_bgr);
+        cv::imshow("k4a Color Image in work ", image);
 		cv::waitKey(30);  // 等待 1 毫秒, 以便窗口刷新
     }
     else {
@@ -376,9 +358,9 @@ void Work::display_image_from_k4aimage(k4a::image& color_image)
 
 k4a::image Work::convert_file2image(const std::string& color_filename) {
     /*
-		this is only for FROM_FILE mode, while is for debugging, 
-        so we don't need to implement a fast version,just so.
-    */
+     *  for debug
+     *  so we don't need to implement a fast version.
+     */
     // Load the image using OpenCV
     cv::Mat cv_image = cv::imread(color_filename, cv::IMREAD_UNCHANGED);
     if (cv_image.empty()) {
@@ -519,8 +501,8 @@ void Work::getResult(unsigned char* CT, k4a::image& color_image, int CT_width, i
 	return;
 }
 
-// 定义评估拟合质量的函数
-double evaluate_fit_quality(const std::vector<cv::Point>& contour, const cv::RotatedRect& ellipse) {
+// 定义评估拟合质量的函数 by hy
+double Work::evaluate_fit_quality(const std::vector<cv::Point>& contour, const cv::RotatedRect& ellipse) {
     cv::Point2f center = ellipse.center;
     cv::Size2f axes = ellipse.size;
     float angle = ellipse.angle;
@@ -547,6 +529,9 @@ double evaluate_fit_quality(const std::vector<cv::Point>& contour, const cv::Rot
 
 int Work::get_body_location(k4a::image& color_image)
 {
+    /*
+     by hy
+    */
     using namespace std;
     using namespace cv;
     // 创建一个向量来存储椭圆的中心点

@@ -12,5 +12,9 @@ enum State {
 	FROM_SMAPLE = 1,// 从GetSample中获取数据，记得加锁
 	FROM_FILE = 2 // 从文件中获取数据，记得加锁
 };
-
+enum RealTimeDisplayState {
+	ONLY_COLOR = 0, // 只显示彩色图
+	ONLY_DEPTH = 1, // 只显示深度图
+	COLOR_DEPTH = 2 // 同时显示彩色图和深度图
+};
 #endif // ALLENUM_HPP

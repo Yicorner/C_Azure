@@ -18,45 +18,43 @@ void RealTimeDisplay::display_image(k4a::image& k4a_image, std::string window_na
     else if (k4a_image.get_format() == K4A_IMAGE_FORMAT_DEPTH16) {
         // 如果是深度图，直接使用 16 位无符号整数类型
         image = cv::Mat(height, width, CV_16U, (void*)buffer);
-        // 可视化深度图，进行归一化显示
+        // 可视化深度图，灰度图
         cv::Mat depth_vis;
-        image.convertTo(depth_vis, CV_8U, 255.0 / 4000.0); // 将深度值转换为 0-255 范围，假设最大深度为 4000mm
+        // 将深度值转换为 0-255 范围，假设最大深度为 4000mm
+        image.convertTo(depth_vis, CV_8U, 255.0 / 4000.0); 
         image = depth_vis;
     }
     // 显示图像
     if (!image.empty()) {
-        //std::cout << "Displaying image in window: " << window_name << std::endl;
         cv::resize(image, image, cv::Size(960, 540));
         cv::imshow(window_name, image);
-        cv::moveWindow(window_name, 100, 100);
+        cv::moveWindow(window_name, 20, 100);
     }
 }
-void RealTimeDisplay::realTimeDisplay(k4a::device& device)
+void RealTimeDisplay::realTimeDisplay(k4a::device& device, RealTimeDisplayState State)
 {
     k4a::capture capture;
-    //std::cout << "Dispaly images start" << std::endl;
 
-    while (running.load()) // Use atomic load for thread safety
+    while (running.load()) 
     {
         if (device.get_capture(&capture, std::chrono::milliseconds(5000))) {
             // Get color image
             k4a::image color_image = capture.get_color_image();
-            if (color_image) {
+            if (color_image && (State == RealTimeDisplayState::ONLY_COLOR || State == RealTimeDisplayState::COLOR_DEPTH)) {
                 display_image(color_image, "Color Image");
             }
             else {
-                std::cout << "Failed to display a color image." << std::endl;
+                std::cerr << "Failed to display a color image." << std::endl;
             }
 
             // Get depth image
             k4a::image depth_image = capture.get_depth_image();
-            if (depth_image) {
-                //display_image(depth_image, "Depth Image");
+            if (depth_image && (State == RealTimeDisplayState::ONLY_DEPTH || State == RealTimeDisplayState::COLOR_DEPTH)) {
+                display_image(depth_image, "Depth Image");
             }
             else {
-                std::cout << "Failed to display a depth image." << std::endl;
+                std::cerr << "Failed to display a depth image." << std::endl;
             }
-
             // Check for key press to exit
             if (cv::waitKey(30) >= 0) {
                 running.store(false);

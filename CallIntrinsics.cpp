@@ -31,5 +31,5 @@ void call_intrinsics(k4a::device& device, k4a_device_configuration_t& config) {
     std::cout << "p1: " << parameters.param.p1 << std::endl;
     std::cout << "p2: " << parameters.param.p2 << std::endl;
 
-    //std::cout << "Metric Radius: " << parameters.param.metric_radius << std::endl;
+    std::cout << "Metric Radius: " << parameters.param.metric_radius << std::endl;
 }

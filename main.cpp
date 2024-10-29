@@ -13,6 +13,7 @@
 #include "realTimeDisplay.hpp"
 #include "getSample.hpp"
 #include "work.hpp"
+#include "AllEnum.hpp"
 
 void change_device_config(k4a::device& device, k4a_device_configuration_t& config) {
     device = k4a::device::open(0);
@@ -34,44 +35,23 @@ int main()
 	change_device_config(device, config);
     device.start_cameras(&config);
 
-
-    GetSample getsample;
+	// realtimedisplay thread
+	RealTimeDisplayState State = RealTimeDisplayState::ONLY_COLOR;
 	RealTimeDisplay realtimedisplay;
+    std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realtimedisplay, std::ref(device), std::ref(State)));
 
-    std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realtimedisplay, std::ref(device)));
-    //std::thread capture_thread(std::bind(&GetSample::get_sample_start, &getsample, std::ref(device), std::ref(config)));
-
+	// Infact, I don't need the object of getsample, just take it as an meanningless argumrnt and omit it.
+    GetSample getsample;
 	Work work(device, config);
     work.run(getsample);
 
 
-    //realTimeDisplay_thread.join();
-	//capture_thread.join();
+    realTimeDisplay_thread.join();
+
     device.stop_cameras();
     device.close();
 
     return 0;
 }
 
-//#include <iostream>
-//#include <exception>
-//#include "RendererGUI.h"
-//
-//
-//
-//using namespace std;
-//int main()
-//{
-//    RendererGUI vr(1440, 810, "Volume-Renderer");
-//    //RendererGUI vr(1920, 1080, "Volume-Renderer", true);
-//    try
-//    {
-//        //vr.run();
-//        vr.run_only_save_image("D:/data/project/VisualStudio/C_Azure/rendered-image/1.png", ".png", 80, 255, 0.3f);
-//    }
-//    catch (exception& e)
-//    {
-//        std::cout << e.what() << std::endl;
-//    }
-//    return 0;
-//}
+
