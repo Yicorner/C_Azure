@@ -2,7 +2,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
-void RealTimeDisplay::display_image(const k4a::image& k4a_image, const std::string& window_name)
+void RealTimeDisplay::display_image(k4a::image& k4a_image, std::string window_name)
 {
     // 获取图像的宽度、高度和指针
     int width = k4a_image.get_width_pixels();
@@ -26,13 +26,15 @@ void RealTimeDisplay::display_image(const k4a::image& k4a_image, const std::stri
     // 显示图像
     if (!image.empty()) {
         //std::cout << "Displaying image in window: " << window_name << std::endl;
+        cv::resize(image, image, cv::Size(960, 540));
         cv::imshow(window_name, image);
+        cv::moveWindow(window_name, 100, 100);
     }
 }
 void RealTimeDisplay::realTimeDisplay(k4a::device& device)
 {
     k4a::capture capture;
-    std::cout << "Dispaly images start" << std::endl;
+    //std::cout << "Dispaly images start" << std::endl;
 
     while (running.load()) // Use atomic load for thread safety
     {
@@ -49,7 +51,7 @@ void RealTimeDisplay::realTimeDisplay(k4a::device& device)
             // Get depth image
             k4a::image depth_image = capture.get_depth_image();
             if (depth_image) {
-                display_image(depth_image, "Depth Image");
+                //display_image(depth_image, "Depth Image");
             }
             else {
                 std::cout << "Failed to display a depth image." << std::endl;

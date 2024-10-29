@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\data\Lib_Include\Include;C:\Program Files\Azure Kinect SDK v1.4.2\sdk\include;D:\data;$(IncludePath)</IncludePath>
+    <IncludePath>D:\data\Lib_Include\Include;C:\Program Files\Azure Kinect SDK v1.4.2\sdk\include;D:\data;D:\data\project\VisualStudio\C_Azure\include;D:\data\project\VisualStudio\C_Azure\Dear-IMGUI;D:\data\project\VisualStudio\C_Azure;$(IncludePath)</IncludePath>
     <LibraryPath>D:\data\Lib_Include\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -106,13 +106,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>"C:\Program Files\Azure Kinect SDK v1.4.2\sdk\windows-desktop\amd64\release\lib\k4a.lib";"C:\Program Files\Azure Kinect SDK v1.4.2\sdk\windows-desktop\amd64\release\lib\k4arecord.lib";"D:\data\Lib_Include\Libs\opencv_world4100d.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>"C:\Program Files\Azure Kinect SDK v1.4.2\sdk\windows-desktop\amd64\release\lib\k4a.lib";"C:\Program Files\Azure Kinect SDK v1.4.2\sdk\windows-desktop\amd64\release\lib\k4arecord.lib";"D:\data\Lib_Include\Libs\opencv_world4100d.lib";"D:\data\Lib_Include\Libs\glfw3.lib";%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,18 +133,52 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CallIntrinsics.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_demo.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_draw.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_widgets.cpp" />
     <ClCompile Include="GetCords.cpp" />
     <ClCompile Include="getSample.cpp" />
-    <ClCompile Include="getSample.hpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="processImage.cpp" />
     <ClCompile Include="realTimeDisplay.cpp" />
-    <ClCompile Include="realTimeDisplay.hpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\ddsbase.cpp" />
+    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\GlfwManager.cpp" />
+    <ClCompile Include="src\ImGuiFileBrowser.cpp" />
+    <ClCompile Include="src\RendererCore.cpp" />
+    <ClCompile Include="src\RendererGUI.cpp" />
+    <ClCompile Include="work.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AllEnum.hpp" />
+    <ClInclude Include="Dear-IMGUI\imconfig.h" />
+    <ClInclude Include="Dear-IMGUI\imgui.h" />
+    <ClInclude Include="Dear-IMGUI\imgui_impl_glfw.h" />
+    <ClInclude Include="Dear-IMGUI\imgui_impl_opengl3.h" />
+    <ClInclude Include="Dear-IMGUI\imgui_internal.h" />
+    <ClInclude Include="Dear-IMGUI\imstb_rectpack.h" />
+    <ClInclude Include="Dear-IMGUI\imstb_textedit.h" />
+    <ClInclude Include="Dear-IMGUI\imstb_truetype.h" />
+    <ClInclude Include="getSample.hpp" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\codebase.h" />
+    <ClInclude Include="include\ddsbase.h" />
+    <ClInclude Include="include\Dirent\dirent.h" />
+    <ClInclude Include="include\GlfwManager.h" />
+    <ClInclude Include="include\ImGuiFileBrowser.h" />
+    <ClInclude Include="include\pvm2raw.h" />
+    <ClInclude Include="include\RendererCore.h" />
+    <ClInclude Include="include\RendererGUI.h" />
+    <ClInclude Include="include\stb_image_write.h" />
+    <ClInclude Include="realTimeDisplay.hpp" />
     <ClInclude Include="CalIntrinsics.hpp" />
     <ClInclude Include="GetCords.hpp" />
     <ClInclude Include="processImage.hpp" />
+    <ClInclude Include="work.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="image.jpg" />

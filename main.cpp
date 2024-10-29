@@ -12,7 +12,7 @@
 #include "CalIntrinsics.hpp"
 #include "realTimeDisplay.hpp"
 #include "getSample.hpp"
-
+#include "work.hpp"
 
 void change_device_config(k4a::device& device, k4a_device_configuration_t& config) {
     device = k4a::device::open(0);
@@ -36,26 +36,42 @@ int main()
 
 
     GetSample getsample;
-	RealTimeDisplay realTimeDisplay;
+	RealTimeDisplay realtimedisplay;
 
-    std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realTimeDisplay, std::ref(device)));
-    std::thread capture_thread(std::bind(&GetSample::get_sample_start, &getsample, std::ref(device), std::ref(config)));
+    std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realtimedisplay, std::ref(device)));
+    //std::thread capture_thread(std::bind(&GetSample::get_sample_start, &getsample, std::ref(device), std::ref(config)));
 
-
-    // Main thread can perform other tasks here
-    std::cout << "Main thread is doing other work..." << std::endl;
-    // Example main thread tasks
-    for (int i = 0; i < 3; ++i) {
-        std::cout << "Main thread working: " << i << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+	Work work(device, config);
+    work.run(getsample);
 
 
-    realTimeDisplay_thread.join();
-	capture_thread.join();
+    //realTimeDisplay_thread.join();
+	//capture_thread.join();
     device.stop_cameras();
     device.close();
 
     return 0;
 }
 
+//#include <iostream>
+//#include <exception>
+//#include "RendererGUI.h"
+//
+//
+//
+//using namespace std;
+//int main()
+//{
+//    RendererGUI vr(1440, 810, "Volume-Renderer");
+//    //RendererGUI vr(1920, 1080, "Volume-Renderer", true);
+//    try
+//    {
+//        //vr.run();
+//        vr.run_only_save_image("D:/data/project/VisualStudio/C_Azure/rendered-image/1.png", ".png", 80, 255, 0.3f);
+//    }
+//    catch (exception& e)
+//    {
+//        std::cout << e.what() << std::endl;
+//    }
+//    return 0;
+//}
