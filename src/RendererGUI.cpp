@@ -57,7 +57,6 @@ void RendererGUI::setShaderAndData() {
 
 void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list, int min_val, int max_val, float alpha_scale)
 {
-	// 下面这六句话一定要放在readVolumeData之后，应为readVolumeData里有setUniforms函数
 	volren.min_val = min_val;
 	volren.max_val = max_val;
 	volren.alpha_scale = alpha_scale;
@@ -72,9 +71,6 @@ void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::ve
 
 void RendererGUI::run()
 {
-    // print glfw_manager.framebuffer_width
-	//std::cout << "framebuffer_width: " << glfw_manager.framebuffer_width << std::endl;
-	//std::cout << "framebuffer_height: " << glfw_manager.framebuffer_height << std::endl;
     volren.window_size = glm::vec2(glfw_manager.window_width, glfw_manager.window_height);
     volren.framebuffer_size = glm::vec2(glfw_manager.framebuffer_width, glfw_manager.framebuffer_height);
     volren.setup();

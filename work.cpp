@@ -19,7 +19,7 @@ void Work::run(GetSample& sample)
     k4a::capture capture;
 	// this id is used to save the image and txt file to debug
     while (1) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        //std::this_thread::sleep_for(std::chrono::seconds(1));
         if (state == FROM_FILE) {
             /*
 				调试状态，从文件中读取图片，然后进行处理。
@@ -66,14 +66,15 @@ void Work::run(GetSample& sample)
                     int detect_state = resort_3D_bodylocation_list();
                     if (detect_state == 1) {
                         save_file_id++;
+						std::cout << std::to_string(save_file_id) + "   *****************************************************************************" << std::endl;
 						// save body3Dlocation_list in txt file
-                        save_body3Dlocation_list_in_txt_file("D:/data/project/VisualStudio/C_Azure/verify_color_image/bodylocation_" + std::to_string(save_file_id) + ".txt", body3Dlocation_list, bodylocation_list);
+                        //save_body3Dlocation_list_in_txt_file("D:/data/project/VisualStudio/C_Azure/verify_color_image/bodylocation_" + std::to_string(save_file_id) + ".txt", body3Dlocation_list, bodylocation_list);
 						// Save color image
-                        save_k4a_color_image_to_png(color_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/color_" + std::to_string(save_file_id) + ".png");
+                        //save_k4a_color_image_to_png(color_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/color_" + std::to_string(save_file_id) + ".png");
 						// Save depth image in raw
-						save_depth_image(depth_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".raw");
+						//save_depth_image(depth_image, "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".raw");
 						// shift depth raw to png for visualization
-                        process_depth_image_with_filename("D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".png", "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".raw");
+                        //process_depth_image_with_filename("D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".png", "D:/data/project/VisualStudio/C_Azure/verify_color_image/depth_" + std::to_string(save_file_id) + ".raw");
 						// start volume rendering
                         bodylocation = BodyLocation::ABDOMEN;
                         vr.run_only_render(bodylocation, body3Dlocation_list, 80, 255, 0.4f);
@@ -89,7 +90,7 @@ void Work::run(GetSample& sample)
                         cv::moveWindow("Blended Image", 1000, 100);
 						cv::waitKey(30);
                         // save final blend result
-						save_mat_image(result, "D:/data/project/VisualStudio/C_Azure/verify_color_image/result_" + std::to_string(save_file_id) + ".png");
+						//save_mat_image(result, "D:/data/project/VisualStudio/C_Azure/verify_color_image/result_" + std::to_string(save_file_id) + ".png");
 
 						/*
 						* the code below for debug to verify the correctness of CT
@@ -213,15 +214,18 @@ int Work::resort_3D_bodylocation_list() {
 		判断3D_bodylocation_list的合法性。返回0代表不合法，返回1代表合法。
 	*/
     using namespace std;
-    if(body3Dlocation_list.size() == 3){
-		// 如果我们已经规定了体数据标点与拍摄角度，为了对应体数据标点与拍摄角度，我们需要对body3Dlocation_list进行排序
-        // 目的是让其x降序排序，而body3Dlocation_list本身是正序的，所以这里需要反转一下
-        std::reverse(body3Dlocation_list.begin(), body3Dlocation_list.end());
-        return 1;
-    }else {
-        return 0;
-    }
-
+  //  if(body3Dlocation_list.size() == 3){
+		//// 如果我们已经规定了体数据标点与拍摄角度，为了对应体数据标点与拍摄角度，我们需要对body3Dlocation_list进行排序
+  //      // 目的是让其x降序排序，而body3Dlocation_list本身是正序的，所以这里需要反转一下
+  //      std::reverse(body3Dlocation_list.begin(), body3Dlocation_list.end());
+  //      return 1;
+  //  }else {
+  //      return 0;
+  //  }
+	if (body3Dlocation_list.size() < 3) {
+		body3Dlocation_list.clear();
+		return 0;
+	}
     // Define chest1, chest2, chest3
     vector<float> chest1 = { -0.211112f, -0.25f, 0.161112f };
     vector<float> chest2 = { -0.281456f, -0.227778f, 0.11111f };
@@ -235,8 +239,8 @@ int Work::resort_3D_bodylocation_list() {
     // Store the chest sides in a vector for easier comparison
     vector<float> chest_sides = { chest_side1, chest_side2, chest_side3 };
 
-    float tolerance = 0.05f; // Allowable relative deviation (10%)
-
+    float tolerance = 0.2f; // Allowable relative deviation (10%)
+	float min_tolerance = 0.2f; // Minimum deviation
     size_t n = body3Dlocation_list.size();
 
     // Iterate over all combinations of three distinct points
@@ -281,15 +285,20 @@ int Work::resort_3D_bodylocation_list() {
 
                     float max_dev = max({ dev1, dev2, dev3 });
 
-                    if (max_dev < tolerance) {
-                        // Found similar triangle with this permutation
+					std::cout << "min_tolerance: " << min_tolerance << std::endl;
+                    if (max_dev < tolerance && max_dev < min_tolerance) {
+						min_tolerance = max_dev;
                         body3Dlocation_list = { a, b, c };
                         match_found = true;
-                        break;
                     }
                 } while (next_permutation(perm.begin(), perm.end()));
 
                 if (match_found) {
+					std::cout << "the best tolerance is " << min_tolerance << std::endl;
+                    // sort the body3Dlocation_list in descending order of x
+                    std::sort(body3Dlocation_list.begin(), body3Dlocation_list.end(), [](const vector<float>& a, const vector<float>& b) {
+                        return a[0] > b[0];
+                        });
                     return 1;
                 }
             }

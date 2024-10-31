@@ -1,0 +1,376 @@
+Shader Loaded Successfully!
+
+Dataset dimensions: 512, 512, 206
+Dataset Aspect ratio: 1.106, 1.106, 5
+[ INFO:0@1.250] global registry_parallel.impl.hpp:96 cv::parallel::ParallelBackendRegistry::ParallelBackendRegistry core(parallel): Enabled backends(3, sorted by priority): ONETBB(1000); TBB(990); OPENMP(980)
+[ INFO:0@1.250] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load D:\data\opencv\build\x64\vc16\bin\opencv_core_parallel_onetbb4100_64d.dll => FAILED
+[ INFO:0@1.250] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load opencv_core_parallel_onetbb4100_64d.dll => FAILED
+[ INFO:0@1.250] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load D:\data\opencv\build\x64\vc16\bin\opencv_core_parallel_tbb4100_64d.dll => FAILED
+[ INFO:0@1.251] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load opencv_core_parallel_tbb4100_64d.dll => FAILED
+[ INFO:0@1.251] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load D:\data\opencv\build\x64\vc16\bin\opencv_core_parallel_openmp4100_64d.dll => FAILED
+[ INFO:0@1.251] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load opencv_core_parallel_openmp4100_64d.dll => FAILED
+[ INFO:0@1.255] global registry.impl.hpp:114 cv::highgui_backend::UIBackendRegistry::UIBackendRegistry UI: Enabled backends(4, sorted by priority): GTK(1000); GTK3(990); GTK2(980); WIN32(970) + BUILTIN(WIN32UI)
+[ INFO:0@1.255] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load D:\data\opencv\build\x64\vc16\bin\opencv_highgui_gtk4100_64.dll => FAILED
+[ INFO:0@1.256] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load opencv_highgui_gtk4100_64.dll => FAILED
+[ INFO:0@1.256] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load D:\data\opencv\build\x64\vc16\bin\opencv_highgui_gtk34100_64.dll => FAILED
+[ INFO:0@1.256] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load opencv_highgui_gtk34100_64.dll => FAILED
+[ INFO:0@1.256] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load D:\data\opencv\build\x64\vc16\bin\opencv_highgui_gtk24100_64.dll => FAILED
+[ INFO:0@1.256] global plugin_loader.impl.hpp:67 cv::plugin::impl::DynamicLib::libraryLoad load opencv_highgui_gtk24100_64.dll => FAILED
+[ INFO:0@1.256] global backend.cpp:90 cv::highgui_backend::createUIBackend UI: using backend: WIN32 (priority=970)
+[ INFO:0@1.256] global window_w32.cpp:2993 cv::impl::Win32BackendUI::createWindow OpenCV/UI: Creating Win32UI window: Color Image (1)
+排序后的椭圆中心点：
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(810, 878)
+(813, 198)
+(969, 759)
+(1011, 887)
+(1530, 739)
+Converted 3D point in color camera coordinate system: (-42.978, 94.1263, 268.487)
+Converted 3D point in color camera coordinate system: (3.56372, 73.3464, 326.993)
+Converted 3D point in color camera coordinate system: (15.7251, 99.9283, 277.018)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.18627
+min_tolerance: 0.182039
+the best tolerance is 0.15566
+1   *****************************************************************************
+[ INFO:1@3.427] global window_w32.cpp:2993 cv::impl::Win32BackendUI::createWindow OpenCV/UI: Creating Win32UI window: Blended Image (1)
+排序后的椭圆中心点：
+(1067, 279)
+(1221, 84)
+(1299, 249)
+Converted 3D point in color camera coordinate system: (28.0011, -70.9327, 239.368)
+Converted 3D point in color camera coordinate system: (69.9808, -124.567, 248.981)
+Converted 3D point in color camera coordinate system: (85.7656, -76.5408, 235.001)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.134402
+min_tolerance: 0.134402
+the best tolerance is 0.102758
+2   *****************************************************************************
+排序后的椭圆中心点：
+(1271, 593)
+(1434, 417)
+(1517, 599)
+Converted 3D point in color camera coordinate system: (79.9744, 10.3343, 237.09)
+Converted 3D point in color camera coordinate system: (130.174, -37.1944, 256.138)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(1132, 620)
+(1294, 437)
+(1371, 615)
+Converted 3D point in color camera coordinate system: (44.1009, 17.2383, 235.322)
+Converted 3D point in color camera coordinate system: (93.3702, -32.1347, 257.575)
+Converted 3D point in color camera coordinate system: (104.186, 15.7509, 235.56)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.141631
+min_tolerance: 0.141631
+the best tolerance is 0.109944
+3   *****************************************************************************
+排序后的椭圆中心点：
+(887, 656)
+(1043, 465)
+(1111, 630)
+(1779, 352)
+Converted 3D point in color camera coordinate system: (-19.2633, 28.1208, 249.19)
+Converted 3D point in color camera coordinate system: (24.6867, -25.7044, 268.879)
+Converted 3D point in color camera coordinate system: (39.6988, 20.3705, 242.03)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.148504
+min_tolerance: 0.148504
+the best tolerance is 0.117194
+4   *****************************************************************************
+排序后的椭圆中心点：
+(831, 600)
+(995, 410)
+(1061, 577)
+(1723, 306)
+Converted 3D point in color camera coordinate system: (-33.3169, 12.2747, 237.736)
+Converted 3D point in color camera coordinate system: (10.2448, -40.803, 262.373)
+Converted 3D point in color camera coordinate system: (26.5434, 6.36799, 239.435)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.146098
+min_tolerance: 0.146098
+the best tolerance is 0.114637
+5   *****************************************************************************
+排序后的椭圆中心点：
+(1110, 436)
+(1293, 283)
+(1348, 460)
+Converted 3D point in color camera coordinate system: (37.7597, -28.931, 228.012)
+Converted 3D point in color camera coordinate system: (89.3931, -72.0186, 248.614)
+Converted 3D point in color camera coordinate system: (96.2299, -22.88, 229.481)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.139136
+min_tolerance: 0.139136
+the best tolerance is 0.107547
+6   *****************************************************************************
+排序后的椭圆中心点：
+(731, 497)
+(899, 290)
+(976, 457)
+(1645, 122)
+(1878, 664)
+Converted 3D point in color camera coordinate system: (-55.3467, -13.4966, 223.273)
+Converted 3D point in color camera coordinate system: (-15.9369, -70.7214, 248.332)
+Converted 3D point in color camera coordinate system: (4.21906, -23.531, 225.397)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.154214
+min_tolerance: 0.154214
+the best tolerance is 0.122986
+7   *****************************************************************************
+排序后的椭圆中心点：
+(937, 470)
+(1113, 311)
+(1167, 475)
+(1876, 271)
+Converted 3D point in color camera coordinate system: (-5.37802, -21.3889, 237.227)
+Converted 3D point in color camera coordinate system: (43.6262, -68.1123, 260.211)
+Converted 3D point in color camera coordinate system: (53.7242, -20.0999, 238.182)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.144303
+min_tolerance: 0.144303
+the best tolerance is 0.112798
+8   *****************************************************************************
+排序后的椭圆中心点：
+(1073, 454)
+(1241, 312)
+(1295, 471)
+Converted 3D point in color camera coordinate system: (30.254, -26.212, 243.806)
+Converted 3D point in color camera coordinate system: (81.2758, -69.3831, 267.432)
+Converted 3D point in color camera coordinate system: (89.285, -21.7309, 246.443)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.133915
+min_tolerance: 0.133915
+the best tolerance is 0.102123
+9   *****************************************************************************
+排序后的椭圆中心点：
+(851, 541)
+(1013, 368)
+(1073, 526)
+(1721, 278)
+Converted 3D point in color camera coordinate system: (-28.4919, -3.07271, 243.347)
+Converted 3D point in color camera coordinate system: (16.4043, -54.6143, 271.849)
+Converted 3D point in color camera coordinate system: (31.238, -7.17578, 247.876)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.153459
+min_tolerance: 0.153459
+the best tolerance is 0.122103
+10   *****************************************************************************
+排序后的椭圆中心点：
+(644, 627)
+(813, 419)
+(880, 582)
+(1497, 257)
+(1727, 143)
+Converted 3D point in color camera coordinate system: (-79.0727, 18.7171, 232.986)
+Converted 3D point in color camera coordinate system: (-41.1644, -37.9365, 261)
+Converted 3D point in color camera coordinate system: (-20.5847, 7.68422, 239.233)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.150608
+min_tolerance: 0.150608
+the best tolerance is 0.119157
+11   *****************************************************************************
+排序后的椭圆中心点：
+(497, 729)
+(668, 494)
+(738, 661)
+(1331, 291)
+(1544, 159)
+Converted 3D point in color camera coordinate system: (-112.281, 42.604, 226.454)
+Converted 3D point in color camera coordinate system: (-80.8921, -16.3046, 256.702)
+Converted 3D point in color camera coordinate system: (-55.7564, 27.4159, 233.127)
+Converted 3D point in color camera coordinate system: (92.9944, -65.3531, 232.852)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.164468
+min_tolerance: 0.164468
+the best tolerance is 0.133457
+12   *****************************************************************************
+排序后的椭圆中心点：
+(347, 809)
+(534, 541)
+(609, 717)
+(1203, 302)
+(1411, 157)
+(1471, 810)
+Converted 3D point in color camera coordinate system: (-138.35, 57.8897, 213.783)
+Converted 3D point in color camera coordinate system: (-111.462, -3.08414, 244.237)
+Converted 3D point in color camera coordinate system: (-83.6055, 39.4071, 222.803)
+Converted 3D point in color camera coordinate system: (60.3986, -62.0798, 229.453)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.165942
+min_tolerance: 0.165942
+the best tolerance is 0.134916
+13   *****************************************************************************
+排序后的椭圆中心点：
+(749, 720)
+(826, 526)
+(909, 645)
+(1310, 304)
+(1464, 172)
+Converted 3D point in color camera coordinate system: (-70.6486, 56.5059, 311.535)
+Converted 3D point in color camera coordinate system: (-48.3172, -9.69804, 334.481)
+Converted 3D point in color camera coordinate system: (-20.1951, 31.7757, 317.173)
+Converted 3D point in color camera coordinate system: (115.137, -81.4439, 304.914)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.176329
+min_tolerance: 0.176329
+the best tolerance is 0.145312
+14   *****************************************************************************
+排序后的椭圆中心点：
+(697, 714)
+(795, 522)
+(873, 647)
+(1296, 332)
+(1448, 219)
+Converted 3D point in color camera coordinate system: (-83.1638, 51.4736, 294.947)
+Converted 3D point in color camera coordinate system: (-57.725, -10.7663, 322.514)
+Converted 3D point in color camera coordinate system: (-28.4246, 31.2087, 303.146)
+Converted 3D point in color camera coordinate system: (110.974, -72.6541, 306.013)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.156432
+min_tolerance: 0.156432
+the best tolerance is 0.125197
+15   *****************************************************************************
+排序后的椭圆中心点：
+(692, 646)
+(807, 462)
+(877, 594)
+(1335, 310)
+(1496, 209)
+(1515, 694)
+Converted 3D point in color camera coordinate system: (-83.0277, 29.023, 287.209)
+Converted 3D point in color camera coordinate system: (-52.1519, -31.142, 315.576)
+Converted 3D point in color camera coordinate system: (-26.082, 13.4007, 295.938)
+Converted 3D point in color camera coordinate system: (120.835, -78.0019, 299.541)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.154233
+min_tolerance: 0.154233
+the best tolerance is 0.122949
+16   *****************************************************************************
+排序后的椭圆中心点：
+(734, 549)
+(870, 391)
+(923, 527)
+(1417, 313)
+Converted 3D point in color camera coordinate system: (-70.3599, -1.13589, 288.328)
+Converted 3D point in color camera coordinate system: (-30.2993, -55.6167, 316.12)
+Converted 3D point in color camera coordinate system: (-11.5877, -8.28455, 296.185)
+Converted 3D point in color camera coordinate system: (145.607, -76.1652, 297.376)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.149883
+min_tolerance: 0.149883
+the best tolerance is 0.118467
+17   *****************************************************************************
+排序后的椭圆中心点：
+(525, 762)
+(652, 547)
+(731, 684)
+(1180, 358)
+Converted 3D point in color camera coordinate system: (-122.07, 58.8387, 262.968)
+Converted 3D point in color camera coordinate system: (-98.694, -1.8268, 297.407)
+Converted 3D point in color camera coordinate system: (-69.4887, 40.1702, 282.057)
+Converted 3D point in color camera coordinate system: (71.7128, -62.9956, 298.929)
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.2
+min_tolerance: 0.152518
+min_tolerance: 0.152518
+the best tolerance is 0.121003
+18   *****************************************************************************
+排序后的椭圆中心点：
+(367, 298)
+(568, 459)
+(682, 406)
+(788, 349)
+(1213, 737)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(1369, 565)
+Converted 3D point in color camera coordinate system: (1162.13, 34.7622, 2636.76)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(1287, 533)
+(1363, 565)
+Converted 3D point in color camera coordinate system: (540.87, -32.3103, 1522.9)
+Converted 3D point in color camera coordinate system: (1132.52, 34.359, 2610.63)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(1276, 319)
+(1442, 617)
+Converted 3D point in color camera coordinate system: (733.85, 97.5396, 1420.3)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(195, 741)
+(1448, 617)
+Converted 3D point in color camera coordinate system: (745.049, 97.762, 1423.31)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(1281, 535)
+(1374, 567)
+Converted 3D point in color camera coordinate system: (846.928, -46.1931, 2425.52)
+Converted 3D point in color camera coordinate system: (1180.01, 40.5745, 2644.23)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(196, 763)
+(658, 990)
+(1284, 534)
+Converted 3D point in color camera coordinate system: (-162.934, 237.665, 509.865)
+Converted 3D point in color camera coordinate system: (545.119, -30.8147, 1538.83)
+未识别到三个点，不进行处理
+排序后的椭圆中心点：
+(188, 745)
+(659, 991)
+(1367, 565)
+Converted 3D point in color camera coordinate system: (-162.615, 238.632, 510.771)

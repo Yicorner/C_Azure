@@ -7,6 +7,8 @@
 #include <thread>
 #include <atomic>
 #include <fstream>  // 需要包含这个头文件
+#include <locale>
+#include <codecvt>
 #include "processImage.hpp"
 #include "GetCords.hpp"
 #include "CalIntrinsics.hpp"
@@ -14,6 +16,7 @@
 #include "getSample.hpp"
 #include "work.hpp"
 #include "AllEnum.hpp"
+
 
 void change_device_config(k4a::device& device, k4a_device_configuration_t& config) {
     device = k4a::device::open(0);
@@ -28,7 +31,18 @@ void change_device_config(k4a::device& device, k4a_device_configuration_t& confi
 
 
 int main()
-{
+{ 
+	// blind the std::cerr to NUL
+    std::ofstream null_stream("NUL");
+    std::cerr.rdbuf(null_stream.rdbuf());
+
+	// 将 std::cout 重定向到文件
+    std::ofstream file("a.txt", std::ios::out | std::ios::binary);
+    // 将 std::cout 重定向到文件
+    std::cout.rdbuf(file.rdbuf());
+
+
+
     // Open Kinect device
     k4a::device device;
     k4a_device_configuration_t config = K4A_DEVICE_CONFIG_INIT_DISABLE_ALL;
@@ -50,6 +64,8 @@ int main()
 
     device.stop_cameras();
     device.close();
+
+
 
     return 0;
 }

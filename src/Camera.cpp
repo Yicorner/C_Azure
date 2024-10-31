@@ -42,35 +42,10 @@ void Camera::resetCamera()
     tot_zenith = 0;
     tot2_azimuth = tot_azimuth =0;
     radius = 3;
-
-    //glm::mat3 fakemanchest(
-    //    -0.211112f, -0.25f, 0.161112f, // 第一行是一个点
-    //    -0.281456f, -0.227778f, 0.11111f, // 第二行是一个点
-    //    -0.177778f, -0.244444f, 0.047222f      // 第三行是一个点
-    //);
-    //glm::mat3 fakemanhead(
-    //    -0.168519f, -0.151852f, 0.677778f,  // 第一行是一个点
-    //    -0.137037f, -0.225926f, 0.659259f, // 第二行是一个点
-    //    -0.135185f, -0.166667f, 0.601852f     // 第三行是一个点
-    //);
-    //glm::mat3 depthCameraImage2chest(
-    //    11.4616f, 3.58519f, 134.144f,  // 第一行是一个点
-    //    -24.4033f, -35.7827f, 150.218f,  // 第二行是一个点
-    //    -56.8212f, 25.2224f, 142.874f     // 第三行是一个点
-    //);
-    //glm::mat3 depthCameraImage10head(
-    //    -35.4482f, 24.9432f, 192.193f,  // 第一行是一个点
-    //    -64.1256f, -7.67211f, 159.326f,  // 第二行是一个点
-    //    -13.3063f, -8.67443f, 156.485f     // 第三行是一个点
-    //);
-    //glm::mat4 camera2fakemanMat = transform_depthCamera2fakeman(depthCameraImage2chest, fakemanchest);
-    //camera2fakemanMat = glm::transpose(camera2fakemanMat);
-    //setViewMatrix(glm::vec4(camera2fakemanMat[3]), glm::vec4(camera2fakemanMat[0]), -glm::vec4(camera2fakemanMat[1]), glm::vec4(camera2fakemanMat[2]));
 }
 
 void Camera::moveCamera(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list)
 {
-    // qbh
     glm::mat3 fakemanchest(
         -0.211112f, -0.25f, 0.161112f, // 第一行是一个点
         -0.281456f, -0.227778f, 0.11111f, // 第二行是一个点
@@ -86,16 +61,16 @@ void Camera::moveCamera(BodyLocation bodylocation, std::vector<std::vector<float
         -0.195062f, -0.150617f, -0.276543f, // 第二行是一个点
         -0.103704f, -0.177778f, -0.375309f     // 第三行是一个点
     );
-    glm::mat3 depthCameraImage2chest(
-        11.4616f, 3.58519f, 134.144f,  // 第一行是一个点
-        -24.4033f, -35.7827f, 150.218f,  // 第二行是一个点
-        -56.8212f, 25.2224f, 142.874f     // 第三行是一个点
-    );
-    glm::mat3 depthCameraImage10head(
-        -35.4482f, 24.9432f, 192.193f,  // 第一行是一个点
-        -64.1256f, -7.67211f, 159.326f,  // 第二行是一个点
-        -13.3063f, -8.67443f, 156.485f     // 第三行是一个点
-    );
+    //glm::mat3 depthCameraImage2chest(
+    //    11.4616f, 3.58519f, 134.144f,  // 第一行是一个点
+    //    -24.4033f, -35.7827f, 150.218f,  // 第二行是一个点
+    //    -56.8212f, 25.2224f, 142.874f     // 第三行是一个点
+    //);
+    //glm::mat3 depthCameraImage10head(
+    //    -35.4482f, 24.9432f, 192.193f,  // 第一行是一个点
+    //    -64.1256f, -7.67211f, 159.326f,  // 第二行是一个点
+    //    -13.3063f, -8.67443f, 156.485f     // 第三行是一个点
+    //);
 	glm::mat3 depthCamera(
         body3Dlocation_list[0][0], body3Dlocation_list[0][1], body3Dlocation_list[0][2],  // 第一行是一个点
 		body3Dlocation_list[1][0], body3Dlocation_list[1][1], body3Dlocation_list[1][2],  // 第二行是一个点
@@ -108,7 +83,7 @@ void Camera::moveCamera(BodyLocation bodylocation, std::vector<std::vector<float
 	}
 	else if (bodylocation == BodyLocation::HEAD)
 	{
-		assert(0, "No such body location");
+        camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanhead);
 	}
 	else
 	{
