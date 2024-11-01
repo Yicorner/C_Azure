@@ -1,4 +1,4 @@
-#include <conio.h>  // WindowsÏÂÓÃÓÚ·Ç×èÈûÊ½»ñÈ¡¼üÅÌÊäÈë
+ï»¿#include <conio.h>  // Windowsä¸‹ç”¨äºéé˜»å¡å¼è·å–é”®ç›˜è¾“å…¥
 #include <chrono>
 #include <filesystem>
 #include <k4a/k4a.hpp>
@@ -6,17 +6,16 @@
 #include <iostream>
 #include <thread>
 #include <atomic>
-#include <fstream>  // ĞèÒª°üº¬Õâ¸öÍ·ÎÄ¼ş
+#include <fstream>  // éœ€è¦åŒ…å«è¿™ä¸ªå¤´æ–‡ä»¶
 #include <locale>
 #include <codecvt>
-#include "processImage.hpp"
+
 #include "GetCords.hpp"
-#include "CalIntrinsics.hpp"
 #include "realTimeDisplay.hpp"
 #include "getSample.hpp"
 #include "work.hpp"
 #include "AllEnum.hpp"
-
+#include "constants.hpp"
 
 void change_device_config(k4a::device& device, k4a_device_configuration_t& config) {
     device = k4a::device::open(0);
@@ -32,14 +31,15 @@ void change_device_config(k4a::device& device, k4a_device_configuration_t& confi
 
 int main()
 { 
-	// blind the std::cerr to NUL
-    std::ofstream null_stream("NUL");
-    std::cerr.rdbuf(null_stream.rdbuf());
+    std::ofstream error_file("error_log.txt");
+    std::ofstream file("normal_log.txt", std::ios::out | std::ios::binary);
+    std::streambuf* original_cout = std::cout.rdbuf();
+    if (Constants::if_log_file == 1) {
+        std::cerr.rdbuf(error_file.rdbuf());
 
-	// ½« std::cout ÖØ¶¨Ïòµ½ÎÄ¼ş
-    std::ofstream file("a.txt", std::ios::out | std::ios::binary);
-    // ½« std::cout ÖØ¶¨Ïòµ½ÎÄ¼ş
-    std::cout.rdbuf(file.rdbuf());
+        // å°† std::cout é‡å®šå‘åˆ°æ–‡ä»¶
+        std::cout.rdbuf(file.rdbuf());
+    }
 
 
 
@@ -50,24 +50,29 @@ int main()
     device.start_cameras(&config);
 
 	// realtimedisplay thread
-	RealTimeDisplayState State = RealTimeDisplayState::ONLY_COLOR;
+	RealTimeDisplayState State = Constants::real_time_display_state;
 	RealTimeDisplay realtimedisplay;
-    std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realtimedisplay, std::ref(device), std::ref(State)));
+    if (Constants::if_real_time_display == 1) {
+        std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realtimedisplay, std::ref(device), std::ref(State)));
+    }
 
 	// Infact, I don't need the object of getsample, just take it as an meanningless argumrnt and omit it.
     GetSample getsample;
 	Work work(device, config);
-    work.run(getsample);
 
-
-    realTimeDisplay_thread.join();
+    if (Constants::if_multi_thread == 1) {
+        work.run_multi_thread(getsample);
+    }
+    else {
+        work.run(getsample);
+    }
 
     device.stop_cameras();
     device.close();
 
 
-
+    std::cout.rdbuf(original_cout);
+    file.close();
+    error_file.close();
     return 0;
 }
-
-

@@ -132,7 +132,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CallIntrinsics.cpp" />
     <ClCompile Include="Dear-IMGUI\imgui.cpp" />
     <ClCompile Include="Dear-IMGUI\imgui_demo.cpp" />
     <ClCompile Include="Dear-IMGUI\imgui_draw.cpp" />
@@ -142,7 +141,7 @@
     <ClCompile Include="GetCords.cpp" />
     <ClCompile Include="getSample.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="processImage.cpp" />
+    <ClCompile Include="StaticFunction.cpp" />
     <ClCompile Include="realTimeDisplay.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\ddsbase.cpp" />
@@ -155,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AllEnum.hpp" />
+    <ClInclude Include="constants.hpp" />
     <ClInclude Include="Dear-IMGUI\imconfig.h" />
     <ClInclude Include="Dear-IMGUI\imgui.h" />
     <ClInclude Include="Dear-IMGUI\imgui_impl_glfw.h" />
@@ -174,10 +174,10 @@
     <ClInclude Include="include\RendererCore.h" />
     <ClInclude Include="include\RendererGUI.h" />
     <ClInclude Include="include\stb_image_write.h" />
+    <ClInclude Include="MultiTimer.hpp" />
     <ClInclude Include="realTimeDisplay.hpp" />
-    <ClInclude Include="CalIntrinsics.hpp" />
     <ClInclude Include="GetCords.hpp" />
-    <ClInclude Include="processImage.hpp" />
+    <ClInclude Include="StaticFunction.hpp" />
     <ClInclude Include="work.hpp" />
   </ItemGroup>
   <ItemGroup>

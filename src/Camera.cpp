@@ -1,4 +1,4 @@
-#include "Camera.h"
+ï»¿#include "Camera.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/matrix_access.hpp"
@@ -47,34 +47,39 @@ void Camera::resetCamera()
 void Camera::moveCamera(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list)
 {
     glm::mat3 fakemanchest(
-        -0.211112f, -0.25f, 0.161112f, // µÚÒ»ÐÐÊÇÒ»¸öµã
-        -0.281456f, -0.227778f, 0.11111f, // µÚ¶þÐÐÊÇÒ»¸öµã
-        -0.177778f, -0.244444f, 0.047222f      // µÚÈýÐÐÊÇÒ»¸öµã
+        -0.211112f, -0.25f, 0.161112f, // ç¬¬ä¸€è¡Œæ˜¯ä¸€ä¸ªç‚¹
+        -0.281456f, -0.227778f, 0.11111f, // ç¬¬äºŒè¡Œæ˜¯ä¸€ä¸ªç‚¹
+        -0.177778f, -0.244444f, 0.047222f      // ç¬¬ä¸‰è¡Œæ˜¯ä¸€ä¸ªç‚¹
     );
     glm::mat3 fakemanhead(
-        -0.168519f, -0.151852f, 0.677778f,  // µÚÒ»ÐÐÊÇÒ»¸öµã
-        -0.137037f, -0.225926f, 0.659259f, // µÚ¶þÐÐÊÇÒ»¸öµã
-        -0.135185f, -0.166667f, 0.601852f     // µÚÈýÐÐÊÇÒ»¸öµã
+        -0.168519f, -0.151852f, 0.677778f,  // ç¬¬ä¸€è¡Œæ˜¯ä¸€ä¸ªç‚¹
+        -0.137037f, -0.225926f, 0.659259f, // ç¬¬äºŒè¡Œæ˜¯ä¸€ä¸ªç‚¹
+        -0.135185f, -0.166667f, 0.601852f     // ç¬¬ä¸‰è¡Œæ˜¯ä¸€ä¸ªç‚¹
     );
     glm::mat3 fakemanabdo(
-        -0.101235f, -0.180247f, -0.269136f,  // µÚÒ»ÐÐÊÇÒ»¸öµã
-        -0.195062f, -0.150617f, -0.276543f, // µÚ¶þÐÐÊÇÒ»¸öµã
-        -0.103704f, -0.177778f, -0.375309f     // µÚÈýÐÐÊÇÒ»¸öµã
+        -0.101235f, -0.180247f, -0.269136f,  // ç¬¬ä¸€è¡Œæ˜¯ä¸€ä¸ªç‚¹
+        -0.195062f, -0.150617f, -0.276543f, // ç¬¬äºŒè¡Œæ˜¯ä¸€ä¸ªç‚¹
+        -0.103704f, -0.177778f, -0.375309f     // ç¬¬ä¸‰è¡Œæ˜¯ä¸€ä¸ªç‚¹
+    );
+    glm::mat3 trueman2leg(
+		-0.288889f, 0.197531f, 0.330864f,  // ç¬¬ä¸€è¡Œæ˜¯ä¸€ä¸ªç‚¹
+		-0.264198f, 0.022222f, 0.271605f,  // ç¬¬äºŒè¡Œæ˜¯ä¸€ä¸ªç‚¹
+		-0.320988f, 0.172840f, 0.051852f	 // ç¬¬ä¸‰è¡Œæ˜¯ä¸€ä¸ªç‚¹
     );
     //glm::mat3 depthCameraImage2chest(
-    //    11.4616f, 3.58519f, 134.144f,  // µÚÒ»ÐÐÊÇÒ»¸öµã
-    //    -24.4033f, -35.7827f, 150.218f,  // µÚ¶þÐÐÊÇÒ»¸öµã
-    //    -56.8212f, 25.2224f, 142.874f     // µÚÈýÐÐÊÇÒ»¸öµã
+    //    11.4616f, 3.58519f, 134.144f,  // ç¬¬ä¸€è¡Œæ˜¯ä¸€ä¸ªç‚¹
+    //    -24.4033f, -35.7827f, 150.218f,  // ç¬¬äºŒè¡Œæ˜¯ä¸€ä¸ªç‚¹
+    //    -56.8212f, 25.2224f, 142.874f     // ç¬¬ä¸‰è¡Œæ˜¯ä¸€ä¸ªç‚¹
     //);
     //glm::mat3 depthCameraImage10head(
-    //    -35.4482f, 24.9432f, 192.193f,  // µÚÒ»ÐÐÊÇÒ»¸öµã
-    //    -64.1256f, -7.67211f, 159.326f,  // µÚ¶þÐÐÊÇÒ»¸öµã
-    //    -13.3063f, -8.67443f, 156.485f     // µÚÈýÐÐÊÇÒ»¸öµã
+    //    -35.4482f, 24.9432f, 192.193f,  // ç¬¬ä¸€è¡Œæ˜¯ä¸€ä¸ªç‚¹
+    //    -64.1256f, -7.67211f, 159.326f,  // ç¬¬äºŒè¡Œæ˜¯ä¸€ä¸ªç‚¹
+    //    -13.3063f, -8.67443f, 156.485f     // ç¬¬ä¸‰è¡Œæ˜¯ä¸€ä¸ªç‚¹
     //);
 	glm::mat3 depthCamera(
-        body3Dlocation_list[0][0], body3Dlocation_list[0][1], body3Dlocation_list[0][2],  // µÚÒ»ÐÐÊÇÒ»¸öµã
-		body3Dlocation_list[1][0], body3Dlocation_list[1][1], body3Dlocation_list[1][2],  // µÚ¶þÐÐÊÇÒ»¸öµã
-		body3Dlocation_list[2][0], body3Dlocation_list[2][1], body3Dlocation_list[2][2]     // µÚÈýÐÐÊÇÒ»¸öµã
+        body3Dlocation_list[0][0], body3Dlocation_list[0][1], body3Dlocation_list[0][2],  // ç¬¬ä¸€è¡Œæ˜¯ä¸€ä¸ªç‚¹
+		body3Dlocation_list[1][0], body3Dlocation_list[1][1], body3Dlocation_list[1][2],  // ç¬¬äºŒè¡Œæ˜¯ä¸€ä¸ªç‚¹
+		body3Dlocation_list[2][0], body3Dlocation_list[2][1], body3Dlocation_list[2][2]     // ç¬¬ä¸‰è¡Œæ˜¯ä¸€ä¸ªç‚¹
 	);
     glm::mat4 camera2fakemanMat;
     if (bodylocation == BodyLocation::CHEST)
@@ -85,10 +90,13 @@ void Camera::moveCamera(BodyLocation bodylocation, std::vector<std::vector<float
 	{
         camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanhead);
 	}
-	else
+	else if (bodylocation == BodyLocation::ABDOMEN)
 	{
         camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanabdo);
 	}
+    else if (bodylocation == BodyLocation::TRUEMANLEG) {
+        camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, trueman2leg);
+    }
     camera2fakemanMat = glm::transpose(camera2fakemanMat);
     setViewMatrix(glm::vec4(camera2fakemanMat[3]), glm::vec4(camera2fakemanMat[0]), -glm::vec4(camera2fakemanMat[1]), glm::vec4(camera2fakemanMat[2]));
 }
@@ -189,17 +197,17 @@ glm::mat4 Camera::transform_depthCamera2fakeman(glm::mat3 depthCameraColorCord, 
     for (int i = 0; i < 3; ++i) {
         transformed_points[i] = R * normedCameraColorCords[i] + t;
     }
- //   // Êä³öR¾ØÕó
+ //   // è¾“å‡ºRçŸ©é˜µ
  //   std::cout << "R[0] : " << R[0][0] << " " << R[0][1] << " " << R[0][2] << std::endl;
  //   std::cout << "R[1] : " << R[1][0] << " " << R[1][1] << " " << R[1][2] << std::endl;
  //   std::cout << "R[2] : " << R[2][0] << " " << R[2][1] << " " << R[2][2] << std::endl;
- //   // Êä³öRµÄÐÐÁÐÊ½
+ //   // è¾“å‡ºRçš„è¡Œåˆ—å¼
  //   std::cout << "R determinant: " << R_eigen.determinant() << std::endl;
- //   // Êä³ötÏòÁ¿
+ //   // è¾“å‡ºtå‘é‡
  //   std::cout << "t : " << t.x << " " << t.y << " " << t.z << std::endl;
-	//// Êä³önormedCameraColorCords[0]
+	//// è¾“å‡ºnormedCameraColorCords[0]
  //   std::cout << "normedCameraColorCords[0] : " << glm::vec3(normedCameraColorCords[0]).x << " " << glm::vec3(normedCameraColorCords[0]).y << " " << glm::vec3(normedCameraColorCords[0]).z << std::endl;
- //   // Êä³öR * normedCameraColorCords[0] + t
+ //   // è¾“å‡ºR * normedCameraColorCords[0] + t
 	//std::cout << "R * normedCameraColorCords[0] + t : " << (R * normedCameraColorCords[0] + t).x << " " << (R * normedCameraColorCords[0] + t).y << " " << (R * normedCameraColorCords[0] + t).z << std::endl;
      
     // Verify the result
@@ -236,7 +244,7 @@ glm::mat4 Camera::transform_depthCamera2fakeman(glm::mat3 depthCameraColorCord, 
     camera2fakemanMat[3][2] = 0.0f;    // Fourth column, third row
     camera2fakemanMat[3][3] = 1.0f;    // Fourth column, fourth row
 
-    // Êä³ö±ä»»¾ØÕó
+    // è¾“å‡ºå˜æ¢çŸ©é˜µ
 	//std::cout << "camera2fakemanMat[0] : " << camera2fakemanMat[0].x << " " << camera2fakemanMat[0].y << " " << camera2fakemanMat[0].z << " " << camera2fakemanMat[0].w << std::endl;
 	//std::cout << "camera2fakemanMat[1] : " << camera2fakemanMat[1].x << " " << camera2fakemanMat[1].y << " " << camera2fakemanMat[1].z << " " << camera2fakemanMat[1].w << std::endl;
 	//std::cout << "camera2fakemanMat[2] : " << camera2fakemanMat[2].x << " " << camera2fakemanMat[2].y << " " << camera2fakemanMat[2].z << " " << camera2fakemanMat[2].w << std::endl;
@@ -303,7 +311,7 @@ void Camera::setOrientation(float zoom , float zenith, float azimuth)
         return;
     }
     float new_zenith, new_azimuth;
-    float pi2 = glm::pi<float>() * 2;
+    constexpr float pi2 = glm::pi<float>() * 2;
 
     new_zenith = glm::clamp(this->zenith + zenith * rotation_speed, 0.0f, glm::pi<float>());
     new_azimuth = this->azimuth + azimuth * rotation_speed;

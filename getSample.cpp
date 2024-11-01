@@ -1,6 +1,6 @@
 // Description: get sample from kinect device
 #include "getSample.hpp"
-#include "processImage.hpp"
+#include "StaticFunction.hpp"
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <fstream>
@@ -120,8 +120,8 @@ void GetSample::get_sample_start(k4a::device& device, k4a_device_configuration_t
                     if (count % 2 == 1) {
                         image_id = count / 2 + 1;
                         get_sample(device, config, image_id);
-                        process_color_image(image_id);
-                        process_depth_image(image_id);
+                        StaticFunction::process_color_image(image_id);
+                        StaticFunction::process_depth_image(image_id);
                     }
                     else {
                         std::cout << "ÒÑÔÝÍ£" << std::endl;

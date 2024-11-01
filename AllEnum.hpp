@@ -5,7 +5,8 @@ enum BodyLocation {
 	NOT_DETECTED = 0,  // 未识别到
 	HEAD = 1,          // 头部
 	CHEST = 2,         // 胸部
-	ABDOMEN = 3        // 肚子
+	ABDOMEN = 3,       // 肚子
+	TRUEMANLEG = 4    // 真人腿
 };
 enum State {
 	DYNAMIC = 0,  // 动态

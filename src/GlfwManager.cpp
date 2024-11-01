@@ -5,73 +5,77 @@
 #include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "constants.hpp"
 
 std::function<void(float, float, float)> GlfwManager::cameraUpdateCallback;
 
 GlfwManager::GlfwManager(int window_width, int window_height, std::string title, bool is_fullscreen)
 {
-	//former constructor, I still don't know the glfw very well, just copy the code from the internet
-    //glfwSetErrorCallback(errorCallback);
-    //if(!glfwInit())
-    //    throw std::runtime_error("GLFW failed to initialize.");
+    ////qbhqbh
+    if (Constants::if_origin_glfw_manager) {
+        glfwSetErrorCallback(errorCallback);
+        if (!glfwInit())
+            throw std::runtime_error("GLFW failed to initialize.");
 
-    //window = NULL;
-    //mouse_button_pressed = false;
-    //createWindow(window_width, window_height, title, is_fullscreen);
-    //initImGui();
-    //ctor
-
-
-	// my constructor
-    glfwSetErrorCallback(errorCallback);
-    if (!glfwInit())
-        throw std::runtime_error("GLFW failed to initialize.");
-
-    // Set window to be hidden
-    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-
-    // Context Hints
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // Framebuffer Hints
-    glfwWindowHint(GLFW_RED_BITS, 8);
-    glfwWindowHint(GLFW_GREEN_BITS, 8);
-    glfwWindowHint(GLFW_BLUE_BITS, 8);
-    glfwWindowHint(GLFW_ALPHA_BITS, 8);
-    glfwWindowHint(GLFW_DEPTH_BITS, 24);
-    glfwWindowHint(GLFW_STENCIL_BITS, 8);
-    this->window_width = window_width;
-    this->window_height = window_height;
-    // Create hidden window
-    window = glfwCreateWindow(window_width, window_height, title.c_str(), NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        throw std::runtime_error("Window creation failed.");
+        window = NULL;
+        mouse_button_pressed = false;
+        createWindow(window_width, window_height, title, is_fullscreen);
+        initImGui();
     }
+    else {
 
-    // Create OpenGL context
-    glfwMakeContextCurrent(window);
+        //return;
+        // my constructor
+        glfwSetErrorCallback(errorCallback);
+        if (!glfwInit())
+            throw std::runtime_error("GLFW failed to initialize.");
 
-    // Initialize GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        throw std::runtime_error("Couldn't initialize GLAD.");
+        // Set window to be hidden
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-    if (!GLAD_GL_VERSION_4_3)
-        throw std::runtime_error("OpenGL version 4.3 not supported.");
+        // Context Hints
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Clear any existing errors
-    glGetError();
+        // Framebuffer Hints
+        glfwWindowHint(GLFW_RED_BITS, 8);
+        glfwWindowHint(GLFW_GREEN_BITS, 8);
+        glfwWindowHint(GLFW_BLUE_BITS, 8);
+        glfwWindowHint(GLFW_ALPHA_BITS, 8);
+        glfwWindowHint(GLFW_DEPTH_BITS, 24);
+        glfwWindowHint(GLFW_STENCIL_BITS, 8);
+        this->window_width = window_width;
+        this->window_height = window_height;
+        // Create hidden window
+        window = glfwCreateWindow(window_width, window_height, title.c_str(), NULL, NULL);
+        if (!window)
+        {
+            glfwTerminate();
+            throw std::runtime_error("Window creation failed.");
+        }
 
-    // Set up viewport
-    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
-    glViewport(0, 0, framebuffer_width, framebuffer_height);
-    
+        // Create OpenGL context
+        glfwMakeContextCurrent(window);
 
+        // Initialize GLAD
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+            throw std::runtime_error("Couldn't initialize GLAD.");
+
+        if (!GLAD_GL_VERSION_4_3)
+            throw std::runtime_error("OpenGL version 4.3 not supported.");
+
+        // Clear any existing errors
+        glGetError();
+
+        // Set up viewport
+        framebuffer_width = window_width;
+        framebuffer_height = window_height;
+        //glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
+        glViewport(0, 0, framebuffer_width, framebuffer_height);
+    }
 }
 
 GlfwManager::~GlfwManager()

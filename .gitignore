@@ -9,6 +9,9 @@ rendered-image/
 static_test_image_for_opencv/
 stored/
 verify_color_image/
+normal_log.txt
+error_log.txt
+
 # User-specific files
 *.rsuser
 *.suo

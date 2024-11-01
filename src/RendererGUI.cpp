@@ -1,8 +1,11 @@
 #include "RendererGUI.h"
 #include "glm/vec2.hpp"
 #include "glm/gtc/constants.hpp"
+#include "constants.hpp"
+
 #include <functional>
 #include <iostream>
+#include <chrono>
 double mouseX, mouseY;
 
 RendererGUI::RendererGUI(int window_width, int window_height, std::string title, bool is_fullscreen) :
@@ -42,21 +45,24 @@ void RendererGUI::run_only_save_image(std::string fn, std::string ext)
 
 void RendererGUI::run_only_image_content()
 {
+	timer.start("Code Segment run_only_image_content");
     volren.getImageContent();
+    timer.stop("Code Segment run_only_image_content");
 }
 
 void RendererGUI::setShaderAndData() {
     volren.window_size = glm::vec2(glfw_manager.window_width, glfw_manager.window_height);
     volren.framebuffer_size = glm::vec2(glfw_manager.framebuffer_width, glfw_manager.framebuffer_height);
     volren.setup();
-    volren.loadShader("D:\\data\\project\\VisualStudio\\Volume-Renderer-1.0\\Volume-Renderer-1.0\\VolumeRenderer.cs", false);
+    volren.loadShader(Constants::Shaderfile, false);
     glClear(GL_COLOR_BUFFER_BIT);
     volren.datasize_bytes = 1;
-    volren.readVolumeData("D:\\data\\project\\VisualStudio\\Volume-Renderer-1.0\\Volume-Renderer-1.0\\fakeman.raw");
+    volren.readVolumeData(Constants::Datafile); //gai
 }
 
 void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list, int min_val, int max_val, float alpha_scale)
 {
+	timer.start("Code Segment run_only_render");
 	volren.min_val = min_val;
 	volren.max_val = max_val;
 	volren.alpha_scale = alpha_scale;
@@ -67,6 +73,7 @@ void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::ve
 	volren.main_cam.moveCamera(bodylocation, body3Dlocation_list);
 	//¿ªÊ¼äÖÈ¾
 	volren.render();
+    timer.stop("Code Segment run_only_render");
 }
 
 void RendererGUI::run()
@@ -85,7 +92,7 @@ void RendererGUI::run()
     int frame_count = 0;
     double prev_time = glfwGetTime(), prev_frame_time = 0, skip_ticks = 16.66666;
 
-    volren.loadShader("D:\\data\\project\\VisualStudio\\Volume-Renderer-1.0\\Volume-Renderer-1.0\\VolumeRenderer.cs", false);
+    volren.loadShader(Constants::Shaderfile, false);
 
     int initail_load = 1;
     while(!glfwWindowShouldClose(glfw_manager.window))
@@ -116,7 +123,7 @@ void RendererGUI::run()
         // qbh
         if (initail_load == 1) { 
             volren.datasize_bytes = 1;
-            volren.readVolumeData("D:\\data\\project\\VisualStudio\\Volume-Renderer-1.0\\Volume-Renderer-1.0\\fakeman.raw"); 
+            volren.readVolumeData(Constants::Datafile); // gai
             enableToolsGUI();
             initail_load = 0;
         }
