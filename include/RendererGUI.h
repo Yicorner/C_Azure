@@ -10,6 +10,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "ImGuiFileBrowser.h"
+#include "MultiTimer.hpp"
 
 class RendererGUI
 {
@@ -24,6 +25,7 @@ class RendererGUI
         void setShaderAndData();
 
     private:
+        MultiTimer& timer = MultiTimer::getInstance();
         void startFrame();
         void renderFrame();
         void showMenu();

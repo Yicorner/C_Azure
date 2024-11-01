@@ -1,4 +1,4 @@
-#include <conio.h>  // WindowsÏÂÓÃÓÚ·Ç×èÈûÊ½»ñÈ¡¼üÅÌÊäÈë
+ï»¿#include <conio.h>  // Windowsä¸‹ç”¨äºéé˜»å¡å¼è·å–é”®ç›˜è¾“å…¥
 #include <chrono>
 #include <filesystem>
 #include <k4a/k4a.hpp>
@@ -6,12 +6,10 @@
 #include <iostream>
 #include <thread>
 #include <atomic>
-#include <fstream>  // ĞèÒª°üº¬Õâ¸öÍ·ÎÄ¼ş
+#include <fstream>  // éœ€è¦åŒ…å«è¿™ä¸ªå¤´æ–‡ä»¶
 #include <locale>
 #include <codecvt>
-#include "processImage.hpp"
 #include "GetCords.hpp"
-#include "CalIntrinsics.hpp"
 #include "realTimeDisplay.hpp"
 #include "getSample.hpp"
 #include "work.hpp"
@@ -32,13 +30,12 @@ void change_device_config(k4a::device& device, k4a_device_configuration_t& confi
 
 int main()
 { 
-	// blind the std::cerr to NUL
-    std::ofstream null_stream("NUL");
-    std::cerr.rdbuf(null_stream.rdbuf());
+    std::ofstream error_file("error_log.txt");
+    std::cerr.rdbuf(error_file.rdbuf());
 
-	// ½« std::cout ÖØ¶¨Ïòµ½ÎÄ¼ş
-    std::ofstream file("a.txt", std::ios::out | std::ios::binary);
-    // ½« std::cout ÖØ¶¨Ïòµ½ÎÄ¼ş
+	// å°† std::cout é‡å®šå‘åˆ°æ–‡ä»¶
+    std::ofstream file("normal_log.txt", std::ios::out | std::ios::binary);
+    std::streambuf* original_cout = std::cout.rdbuf();
     std::cout.rdbuf(file.rdbuf());
 
 
@@ -66,7 +63,9 @@ int main()
     device.close();
 
 
-
+    std::cout.rdbuf(original_cout);
+    file.close();
+    error_file.close();
     return 0;
 }
 

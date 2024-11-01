@@ -1,30 +1,30 @@
-#include "realTimeDisplay.hpp"
+ï»¿#include "realTimeDisplay.hpp"
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
 void RealTimeDisplay::display_image(k4a::image& k4a_image, std::string window_name)
 {
-    // »ñÈ¡Í¼ÏñµÄ¿í¶È¡¢¸ß¶ÈºÍÖ¸Õë
+    // è·å–å›¾åƒçš„å®½åº¦ã€é«˜åº¦å’ŒæŒ‡é’ˆ
     int width = k4a_image.get_width_pixels();
     int height = k4a_image.get_height_pixels();
     const uint8_t* buffer = k4a_image.get_buffer();
 
-    // ¼ì²éÍ¼Ïñ¸ñÊ½²¢¸ù¾İĞèÒª½øĞĞ×ª»»
+    // æ£€æŸ¥å›¾åƒæ ¼å¼å¹¶æ ¹æ®éœ€è¦è¿›è¡Œè½¬æ¢
     cv::Mat image;
     if (k4a_image.get_format() == K4A_IMAGE_FORMAT_COLOR_BGRA32) {
-        // Èç¹ûÊÇ BGRA32 ¸ñÊ½£¨RGBA£©£¬½«Æä×ª»»Îª OpenCV µÄ BGRA Í¼Ïñ
+        // å¦‚æœæ˜¯ BGRA32 æ ¼å¼ï¼ˆRGBAï¼‰ï¼Œå°†å…¶è½¬æ¢ä¸º OpenCV çš„ BGRA å›¾åƒ
         image = cv::Mat(height, width, CV_8UC4, (void*)buffer);
     }
     else if (k4a_image.get_format() == K4A_IMAGE_FORMAT_DEPTH16) {
-        // Èç¹ûÊÇÉî¶ÈÍ¼£¬Ö±½ÓÊ¹ÓÃ 16 Î»ÎŞ·ûºÅÕûÊıÀàĞÍ
+        // å¦‚æœæ˜¯æ·±åº¦å›¾ï¼Œç›´æ¥ä½¿ç”¨ 16 ä½æ— ç¬¦å·æ•´æ•°ç±»å‹
         image = cv::Mat(height, width, CV_16U, (void*)buffer);
-        // ¿ÉÊÓ»¯Éî¶ÈÍ¼£¬»Ò¶ÈÍ¼
+        // å¯è§†åŒ–æ·±åº¦å›¾ï¼Œç°åº¦å›¾
         cv::Mat depth_vis;
-        // ½«Éî¶ÈÖµ×ª»»Îª 0-255 ·¶Î§£¬¼ÙÉè×î´óÉî¶ÈÎª 4000mm
+        // å°†æ·±åº¦å€¼è½¬æ¢ä¸º 0-255 èŒƒå›´ï¼Œå‡è®¾æœ€å¤§æ·±åº¦ä¸º 4000mm
         image.convertTo(depth_vis, CV_8U, 255.0 / 4000.0); 
         image = depth_vis;
     }
-    // ÏÔÊ¾Í¼Ïñ
+    // æ˜¾ç¤ºå›¾åƒ
     if (!image.empty()) {
         cv::resize(image, image, cv::Size(960, 540));
         cv::imshow(window_name, image);
@@ -43,7 +43,7 @@ void RealTimeDisplay::realTimeDisplay(k4a::device& device, RealTimeDisplayState 
             if (color_image && (State == RealTimeDisplayState::ONLY_COLOR || State == RealTimeDisplayState::COLOR_DEPTH)) {
                 display_image(color_image, "Color Image");
             }
-            else {
+            else if(!color_image){
                 std::cerr << "Failed to display a color image." << std::endl;
             }
 
@@ -52,7 +52,7 @@ void RealTimeDisplay::realTimeDisplay(k4a::device& device, RealTimeDisplayState 
             if (depth_image && (State == RealTimeDisplayState::ONLY_DEPTH || State == RealTimeDisplayState::COLOR_DEPTH)) {
                 display_image(depth_image, "Depth Image");
             }
-            else {
+            else if(!depth_image){
                 std::cerr << "Failed to display a depth image." << std::endl;
             }
             // Check for key press to exit

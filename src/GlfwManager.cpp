@@ -10,18 +10,6 @@ std::function<void(float, float, float)> GlfwManager::cameraUpdateCallback;
 
 GlfwManager::GlfwManager(int window_width, int window_height, std::string title, bool is_fullscreen)
 {
-	//former constructor, I still don't know the glfw very well, just copy the code from the internet
-    //glfwSetErrorCallback(errorCallback);
-    //if(!glfwInit())
-    //    throw std::runtime_error("GLFW failed to initialize.");
-
-    //window = NULL;
-    //mouse_button_pressed = false;
-    //createWindow(window_width, window_height, title, is_fullscreen);
-    //initImGui();
-    //ctor
-
-
 	// my constructor
     glfwSetErrorCallback(errorCallback);
     if (!glfwInit())
@@ -68,7 +56,9 @@ GlfwManager::GlfwManager(int window_width, int window_height, std::string title,
     glGetError();
 
     // Set up viewport
-    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
+    framebuffer_width = window_width;
+    framebuffer_height = window_height;
+    //glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
     glViewport(0, 0, framebuffer_width, framebuffer_height);
     
 

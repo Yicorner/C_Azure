@@ -1,8 +1,10 @@
 #include "RendererGUI.h"
 #include "glm/vec2.hpp"
 #include "glm/gtc/constants.hpp"
+
 #include <functional>
 #include <iostream>
+#include <chrono>
 double mouseX, mouseY;
 
 RendererGUI::RendererGUI(int window_width, int window_height, std::string title, bool is_fullscreen) :
@@ -42,7 +44,9 @@ void RendererGUI::run_only_save_image(std::string fn, std::string ext)
 
 void RendererGUI::run_only_image_content()
 {
+	timer.start("Code Segment run_only_image_content");
     volren.getImageContent();
+    timer.stop("Code Segment run_only_image_content");
 }
 
 void RendererGUI::setShaderAndData() {
@@ -57,6 +61,7 @@ void RendererGUI::setShaderAndData() {
 
 void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list, int min_val, int max_val, float alpha_scale)
 {
+	timer.start("Code Segment run_only_render");
 	volren.min_val = min_val;
 	volren.max_val = max_val;
 	volren.alpha_scale = alpha_scale;
@@ -67,6 +72,7 @@ void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::ve
 	volren.main_cam.moveCamera(bodylocation, body3Dlocation_list);
 	//¿ªÊ¼äÖÈ¾
 	volren.render();
+    timer.stop("Code Segment run_only_render");
 }
 
 void RendererGUI::run()
