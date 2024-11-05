@@ -12,6 +12,7 @@ verify_color_image/
 verify_color_image2/
 normal_log.txt
 error_log.txt
+a.txt
 
 # User-specific files
 *.rsuser
