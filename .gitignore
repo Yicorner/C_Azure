@@ -10,6 +10,7 @@ static_test_image_for_opencv/
 stored/
 verify_color_image/
 verify_color_image2/
+test_git/
 normal_log.txt
 error_log.txt
 a.txt
