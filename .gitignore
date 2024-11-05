@@ -13,6 +13,10 @@ verify_color_image2/
 normal_log.txt
 error_log.txt
 a.txt
+# Visual Studio project files
+*.sln
+*.vcxproj
+*.vcxproj.filters
 
 # User-specific files
 *.rsuser
