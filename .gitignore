@@ -14,6 +14,7 @@ test_git/
 normal_log.txt
 error_log.txt
 a.txt
+test_git2.txt
 # Visual Studio project files
 *.sln
 *.vcxproj
