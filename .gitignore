@@ -10,16 +10,15 @@ static_test_image_for_opencv/
 stored/
 verify_color_image/
 verify_color_image2/
-test_git/
+
 normal_log.txt
 error_log.txt
 a.txt
-test_git2.txt
-test_git3.txt
+
 # Visual Studio project files
-*.sln
-*.vcxproj
-*.vcxproj.filters
+C_Azure.sln
+C_Azure.vcxproj
+C_Azure.vcxproj.filters
 
 # User-specific files
 *.rsuser
