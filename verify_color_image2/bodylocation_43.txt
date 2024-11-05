@@ -1,8 +1,0 @@
-bodylocation_list:
-bodylocation_list[0]: 452 324
-bodylocation_list[1]: 542 676
-bodylocation_list[2]: 899 462
-body3Dlocation_list:
-body3Dlocation_list[0]: -30.2739 -45.8825 463.902
-body3Dlocation_list[1]: -192.108 57.0276 430.942
-body3Dlocation_list[2]: -231.48 -104.707 429.474
