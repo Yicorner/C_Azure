@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{7f07eca3-d96f-4b5d-ae15-8beda915c143}</ProjectGuid>
+    <RootNamespace>CAzure</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\data\Lib_Include\Include;C:\Program Files\Azure Kinect SDK v1.4.2\sdk\include;D:\data;D:\data\project\VisualStudio\C_Azure\include;D:\data\project\VisualStudio\C_Azure\Dear-IMGUI;D:\data\project\VisualStudio\C_Azure;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\data\Lib_Include\Libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>"C:\Program Files\Azure Kinect SDK v1.4.2\sdk\windows-desktop\amd64\release\lib\k4a.lib";"C:\Program Files\Azure Kinect SDK v1.4.2\sdk\windows-desktop\amd64\release\lib\k4arecord.lib";"D:\data\Lib_Include\Libs\opencv_world4100d.lib";"D:\data\Lib_Include\Libs\glfw3.lib";%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Dear-IMGUI\imgui.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_demo.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_draw.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Dear-IMGUI\imgui_widgets.cpp" />
+    <ClCompile Include="GetCords.cpp" />
+    <ClCompile Include="getSample.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="StaticFunction.cpp" />
+    <ClCompile Include="realTimeDisplay.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\ddsbase.cpp" />
+    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\GlfwManager.cpp" />
+    <ClCompile Include="src\ImGuiFileBrowser.cpp" />
+    <ClCompile Include="src\RendererCore.cpp" />
+    <ClCompile Include="src\RendererGUI.cpp" />
+    <ClCompile Include="work.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AllEnum.hpp" />
+    <ClInclude Include="constants.hpp" />
+    <ClInclude Include="Dear-IMGUI\imconfig.h" />
+    <ClInclude Include="Dear-IMGUI\imgui.h" />
+    <ClInclude Include="Dear-IMGUI\imgui_impl_glfw.h" />
+    <ClInclude Include="Dear-IMGUI\imgui_impl_opengl3.h" />
+    <ClInclude Include="Dear-IMGUI\imgui_internal.h" />
+    <ClInclude Include="Dear-IMGUI\imstb_rectpack.h" />
+    <ClInclude Include="Dear-IMGUI\imstb_textedit.h" />
+    <ClInclude Include="Dear-IMGUI\imstb_truetype.h" />
+    <ClInclude Include="getSample.hpp" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\codebase.h" />
+    <ClInclude Include="include\ddsbase.h" />
+    <ClInclude Include="include\Dirent\dirent.h" />
+    <ClInclude Include="include\GlfwManager.h" />
+    <ClInclude Include="include\ImGuiFileBrowser.h" />
+    <ClInclude Include="include\pvm2raw.h" />
+    <ClInclude Include="include\RendererCore.h" />
+    <ClInclude Include="include\RendererGUI.h" />
+    <ClInclude Include="include\stb_image_write.h" />
+    <ClInclude Include="MultiTimer.hpp" />
+    <ClInclude Include="realTimeDisplay.hpp" />
+    <ClInclude Include="GetCords.hpp" />
+    <ClInclude Include="StaticFunction.hpp" />
+    <ClInclude Include="work.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
