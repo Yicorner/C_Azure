@@ -52,9 +52,7 @@ int main()
 	// realtimedisplay thread
 	RealTimeDisplayState State = Constants::real_time_display_state;
 	RealTimeDisplay realtimedisplay;
-    if (Constants::if_real_time_display == 1) {
-        std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realtimedisplay, std::ref(device), std::ref(State)));
-    }
+    //std::thread realTimeDisplay_thread(std::bind(&RealTimeDisplay::realTimeDisplay, &realtimedisplay, std::ref(device), std::ref(State)));
 
 	// Infact, I don't need the object of getsample, just take it as an meanningless argumrnt and omit it.
     GetSample getsample;
@@ -63,10 +61,15 @@ int main()
     if (Constants::if_multi_thread == 1) {
         work.run_multi_thread(getsample);
     }
+    else if(Constants::if_multi_thread == 2){
+		work.run_multi_thread2(getsample);
+    }
     else {
         work.run(getsample);
+
     }
 
+	//realTimeDisplay_thread.join();
     device.stop_cameras();
     device.close();
 

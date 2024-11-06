@@ -90,6 +90,9 @@
     <ClCompile Include="src\ImGuiFileBrowser.cpp">
       <Filter>源文件\OthersCpp</Filter>
     </ClCompile>
+    <ClCompile Include="constants.cpp">
+      <Filter>源文件\MyCpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AllEnum.hpp">
@@ -172,8 +175,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="image.jpg">
-      <Filter>资源文件</Filter>
-    </Image>
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>

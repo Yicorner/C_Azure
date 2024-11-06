@@ -34,7 +34,7 @@ public:
 	BodyLocation bodylocation; // 0代表未识别到，1代表头部，2代表胸部，3代表肚子
 	Work(k4a::device& device, k4a_device_configuration_t& config) :
 		bodylocation(Constants::body_location), state(Constants::state), device(&device),
-		config(&config), get3dcords(device, config), vr(1440, 810, "Volume-Renderer")
+		config(&config), get3dcords(device, config), vr(Constants::width, Constants::height, "Volume-Renderer")
 	{
 		vr.setShaderAndData();
 	}; // 构造函数
@@ -45,6 +45,9 @@ public:
 	void getResult(unsigned char* CT, k4a::image& color_image, int CT_width, int CT_height); // 得到最终的AR图
 	int resort_3D_bodylocation_list(std::vector<std::vector<float>>& body3Dlocation_list); // 对人体位置列表进行排序
 	void run_multi_thread(GetSample& sample);
+	void run_temp(GetSample& sample);
+	void run_multi_thread2(GetSample& sample);
+
 private:
 	k4a::image color_image2; // 声明一个颜色图像，用于在类work中获取数据
 	k4a::image depth_image2; // 声明一个深度图像，用于在类work中获取数据

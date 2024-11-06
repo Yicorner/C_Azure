@@ -71,7 +71,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\data\Lib_Include\Include;C:\Program Files\Azure Kinect SDK v1.4.2\sdk\include;D:\data;D:\data\project\VisualStudio\C_Azure\include;D:\data\project\VisualStudio\C_Azure\Dear-IMGUI;D:\data\project\VisualStudio\C_Azure;$(IncludePath)</IncludePath>
+    <IncludePath>D:\data\Lib_Include\Include;C:\Program Files\Azure Kinect SDK v1.4.2\sdk\include;D:\data\project\VisualStudio\C_Azure\include;D:\data\project\VisualStudio\C_Azure\Dear-IMGUI;D:\data\project\VisualStudio\C_Azure;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\data\Lib_Include\Libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\data\project\VisualStudio\C_Azure;D:\data\project\VisualStudio\C_Azure\Dear-IMGUI;D:\data\project\VisualStudio\C_Azure\include;C:\Program Files\Azure Kinect SDK v1.4.2\sdk\include;D:\data\Lib_Include\Include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\data\Lib_Include\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -121,7 +125,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -129,9 +133,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>"D:\data\Lib_Include\Libs\k4a.lib";"D:\data\Lib_Include\Libs\k4arecord.lib";"D:\data\Lib_Include\Libs\opencv_world4100.lib";"D:\data\Lib_Include\Libs\glfw3.lib";%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="constants.cpp" />
     <ClCompile Include="Dear-IMGUI\imgui.cpp" />
     <ClCompile Include="Dear-IMGUI\imgui_demo.cpp" />
     <ClCompile Include="Dear-IMGUI\imgui_draw.cpp" />

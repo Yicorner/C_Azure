@@ -134,7 +134,97 @@ void Work::run(GetSample& sample)
     }
 }
 
+void Work::run_temp(GetSample& sample) {
+    // inital a object of k4a::capture for capture both color and depth iamge
+    k4a::capture capture;
+    // this id is used to save the image and txt file to debug
+    // 创建窗口（在循环外创建一次）,大小为960*540
+    cv::namedWindow(Constants::window_name, cv::WINDOW_AUTOSIZE);
+    cv::resizeWindow(Constants::window_name, 1440, 810);
+    cv::moveWindow(Constants::window_name, 500, 100);
+    while (1) {
+       if (state == DYNAMIC) {
+            frame_id++;
+            if ((*device).get_capture(&capture, std::chrono::milliseconds(5000))) {
+                std::cout << "start frame: " << frame_id << " ------------------------------------------------------------------------------------------" << std::endl;
 
+                timer.start("Code Segment capture");
+                color_image = capture.get_color_image();
+                depth_image = capture.get_depth_image();
+                timer.stop("Code Segment capture");
+
+                if (color_image && depth_image) {
+                    //body3Dlocation_list.clear();
+                    //get_body_location(color_image);
+
+                    //for (int i = 0; i < bodylocation_list.size(); i++) {
+                    //    // from pixel cordinates in color_image to 3D cordinates in color_image space cordinates
+                    //    get3dcords.get_cords_with_depth_image(bodylocation_list[i].first, bodylocation_list[i].second, depth_image, body3Dlocation_list);
+                    //}
+                    //int detect_state = resort_3D_bodylocation_list(body3Dlocation_list);
+					int detect_state = 1;
+                    if (detect_state == 1) {
+                        save_file_id++;
+                        std::cout << "get valid image id: " + std::to_string(save_file_id) + "   *****************************************************************************" << std::endl;
+                        // save body3Dlocation_list in txt file
+                        //StaticFunction::save_body3Dlocation_list_in_txt_file(Constants::save_dir + "bodylocation_" + std::to_string(save_file_id) + ".txt", body3Dlocation_list, bodylocation_list);
+                        // Save color image
+                        //StaticFunction::save_k4a_color_image_to_png(color_image, Constants::save_dir + "color_" + std::to_string(save_file_id) + ".png");
+                        // Save depth image in raw
+                        //StaticFunction::save_depth_image_in_raw(depth_image, Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
+                        // shift depth raw to png for visualization
+                        //StaticFunction::process_depth_image_with_filename(Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".png", Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
+                        // start volume rendering
+                        //bodylocation = Constants::body_location; //qbh
+                        bodylocation = BodyLocation::CHEST;
+                        body3Dlocation_list.resize(3);
+                        body3Dlocation_list[0] = { 11.4616f, 3.58519f, 134.144f };
+                        body3Dlocation_list[1] = { -24.4033f, -35.7827f, 150.218f };
+                        body3Dlocation_list[2] = { -56.8212f, 25.2224f, 142.874f };
+
+                        vr.run_only_render(bodylocation, body3Dlocation_list, Constants::minval, Constants::maxval, Constants::alpha);
+                        vr.run_only_image_content();
+                        // get pointer which point to the CT volume render result
+                        unsigned char* CT = vr.volren.img_data_from_core;
+                        // blend the color image and the CT volume render result to get the final blend result in variant result
+                        getResult(CT, color_image, vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y);
+                        //show final blend result
+                        cv::Mat resized_result;
+                        cv::resize(result, resized_result, cv::Size(1440, 810));
+                        cv::imshow(Constants::window_name, resized_result);
+                        cv::moveWindow(Constants::window_name, 500, 100);
+                        // Dynamically update the window title
+                        //std::string dynamic_title = Constants::window_name + " " + std::to_string(save_file_id);
+                        //cv::setWindowTitle(Constants::window_name, dynamic_title);  // 更新标题
+                        cv::waitKey(30);
+                        timer.printStatistics();
+                        // save final blend result
+                        //StaticFunction::save_mat_image(result, Constants::save_dir + "result_" + std::to_string(save_file_id) + ".png");
+
+                        /*
+                        * the code below for debug to verify the correctness of CT
+                        * stbi_flip_vertically_on_write(1);
+                        * std::string fn = "D:/data/project/VisualStudio/C_Azure/rendered-image/2.png";
+                        * int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
+                        * bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
+                        */
+                        // save CT volume render image
+                        //stbi_flip_vertically_on_write(1);
+                        //std::string fn = Constants::save_dir + "CT_" + std::to_string(save_file_id) + ".png";
+                        //int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
+                        //bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
+                    }
+                    else {
+                        std::cout << "未识别到三个点，不进行处理" << std::endl;
+                    }
+                }
+            }
+        }
+        else {
+            assert(0 && "other state remain to implement");
+        }
+    }
+}
 void Work::run_multi_thread(GetSample& sample) {
     if (state == DYNAMIC) {
         std::thread t1(&Work::loop_get_body_location, this);
@@ -142,29 +232,25 @@ void Work::run_multi_thread(GetSample& sample) {
         // 创建窗口（在循环外创建一次）,大小为960*540
         cv::namedWindow(Constants::window_name, cv::WINDOW_AUTOSIZE);
         cv::resizeWindow(Constants::window_name, 960, 540);
-        cv::moveWindow("Blended Image", 1000, 100);
+        cv::moveWindow(Constants::window_name, 1000, 100);
         while (1) {
             ready3 = false;
             std::unique_lock<std::mutex> lock(mtx3);
             while (!ready3)
-                cv3.wait(lock);
+                cv3.wait(lock); // temp
             save_file_id++;
             std::cout << "get valid image id: " + std::to_string(save_file_id) + "   *****************************************************************************" << std::endl;
             // save body3Dlocation_list in txt file
             // Save color image
-            StaticFunction::save_k4a_color_image_to_png(color_image, Constants::save_dir + "color_" + std::to_string(save_file_id) + ".png");
+            //StaticFunction::save_k4a_color_image_to_png(color_image, Constants::save_dir + "color_" + std::to_string(save_file_id) + ".png");
             // Save depth image in raw
-            StaticFunction::save_depth_image_in_raw(depth_image, Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
+            //StaticFunction::save_depth_image_in_raw(depth_image, Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
             // shift depth raw to png for visualization
-            StaticFunction::process_depth_image_with_filename(Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".png", Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
+            //StaticFunction::process_depth_image_with_filename(Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".png", Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
             // start volume rendering
             bodylocation = Constants::body_location; // gai
 
             body3Dlocation_mtx3.lock();
-            //bodylocation = BodyLocation::CHEST;
-            //body3Dlocation_list3[0] = { 11.4616f, 3.58519f, 134.144f };
-            //body3Dlocation_list3[1] = { -24.4033f, -35.7827f, 150.218f };
-            //body3Dlocation_list3[2] = { -56.8212f, 25.2224f, 142.874f };
             vr.run_only_render(bodylocation, body3Dlocation_list3, Constants::minval, Constants::maxval, Constants::alpha); //gai
             body3Dlocation_mtx3.unlock();
 
@@ -172,11 +258,10 @@ void Work::run_multi_thread(GetSample& sample) {
             // get pointer which point to the CT volume render result
             unsigned char* CT = vr.volren.img_data_from_core;
             // blend the color image and the CT volume render result to get the final blend result in variant result
-
             color_mtx3.lock();
             getResult(CT, color_image3, vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y);
             color_mtx3.unlock();
-            StaticFunction::save_mat_image(result, Constants::save_dir + "result_" + std::to_string(save_file_id) + ".png");
+            //StaticFunction::save_mat_image(result, Constants::save_dir + "result_" + std::to_string(save_file_id) + ".png");
 
             //show final blend result
             cv::Mat resized_result;
@@ -189,16 +274,89 @@ void Work::run_multi_thread(GetSample& sample) {
             cv::waitKey(30);
             // print time in each code segment
             timer.printStatistics();
-            stbi_flip_vertically_on_write(1);
-            std::string fn = Constants::save_dir + "CT_" + std::to_string(save_file_id) + ".png";
-            int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
-            bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
+            //stbi_flip_vertically_on_write(1);
+            //std::string fn = Constants::save_dir + "CT_" + std::to_string(save_file_id) + ".png";
+            //int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
+            //bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
         }
         t1.join();
         t2.join();
     }
 }
+void Work::run_multi_thread2(GetSample& sample) {
+    k4a::capture capture;
 
+    std::vector<std::vector<float>> body3Dlocation_list_front;
+    body3Dlocation_list_front.resize(3);
+    body3Dlocation_list_front[0] = { 11.4616f, 3.58519f, 134.144f };
+    body3Dlocation_list_front[1] = { -24.4033f, -35.7827f, 150.218f };
+    body3Dlocation_list_front[2] = { -56.8212f, 25.2224f, 142.874f };
+
+    if (state == DYNAMIC) {
+        std::thread t1(&Work::loop_get_body_location, this);
+        std::thread t2(&Work::loop_get_3D_body_location, this);
+        // 创建窗口（在循环外创建一次）,大小为960*540
+        cv::namedWindow(Constants::window_name, cv::WINDOW_AUTOSIZE);
+        cv::resizeWindow(Constants::window_name, 960, 540);
+        cv::moveWindow(Constants::window_name, 1000, 100);
+        while (1) {
+            if ((*device).get_capture(&capture, std::chrono::milliseconds(5000))) {
+                k4a::image color_image_tmp = capture.get_color_image();
+                //ready3 = false;
+                //std::unique_lock<std::mutex> lock(mtx3);
+                //while (!ready3)
+                //    cv3.wait(lock); // temp
+                save_file_id++;
+                std::cout << "get valid image id: " + std::to_string(save_file_id) + "   *****************************************************************************" << std::endl;
+                // save body3Dlocation_list in txt file
+                // Save color image
+                //StaticFunction::save_k4a_color_image_to_png(color_image, Constants::save_dir + "color_" + std::to_string(save_file_id) + ".png");
+                // Save depth image in raw
+                //StaticFunction::save_depth_image_in_raw(depth_image, Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
+                // shift depth raw to png for visualization
+                //StaticFunction::process_depth_image_with_filename(Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".png", Constants::save_dir + "depth_" + std::to_string(save_file_id) + ".raw");
+                // start volume rendering
+                bodylocation = Constants::body_location; // gai
+
+                body3Dlocation_mtx3.lock();
+                if (body3Dlocation_list3.size() != 3) {
+                    body3Dlocation_list3 = body3Dlocation_list_front;
+                }
+                else {
+                    body3Dlocation_list_front = body3Dlocation_list3;
+                }
+                vr.run_only_render(bodylocation, body3Dlocation_list3, Constants::minval, Constants::maxval, Constants::alpha); //gai
+                body3Dlocation_mtx3.unlock();
+
+                vr.run_only_image_content();
+                // get pointer which point to the CT volume render result
+                unsigned char* CT = vr.volren.img_data_from_core;
+                // blend the color image and the CT volume render result to get the final blend result in variant result
+
+                getResult(CT, color_image_tmp, vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y);
+                //StaticFunction::save_mat_image(result, Constants::save_dir + "result_" + std::to_string(save_file_id) + ".png");
+
+                //show final blend result
+                cv::Mat resized_result;
+                cv::resize(result, resized_result, cv::Size(960, 540));
+                cv::imshow(Constants::window_name, resized_result);
+                // Dynamically update the window title
+                std::string dynamic_title = Constants::window_name + " " + std::to_string(save_file_id);
+                cv::setWindowTitle(Constants::window_name, dynamic_title);  // 更新标题
+                cv::waitKey(30);
+                // print time in each code segment
+                timer.printStatistics();
+                //stbi_flip_vertically_on_write(1);
+                //std::string fn = Constants::save_dir + "CT_" + std::to_string(save_file_id) + ".png";
+                //int stride = (vr.volren.framebuffer_size.x % 4) + (vr.volren.framebuffer_size.x * 3);
+                //bool status = stbi_write_png(fn.c_str(), vr.volren.framebuffer_size.x, vr.volren.framebuffer_size.y, 3, CT, stride);
+            }
+        }
+        t1.join();
+        t2.join();
+    }
+    
+}
 int Work::resort_3D_bodylocation_list(std::vector<std::vector<float>>& body3Dlocation_list) {
 	/*
 		判断3D_bodylocation_list的合法性。返回0代表不合法，返回1代表合法。
@@ -227,10 +385,7 @@ int Work::resort_3D_bodylocation_list(std::vector<std::vector<float>>& body3Dloc
     vector<float> chest1 = Constants::volume_point_one;
     vector<float> chest2 = Constants::volume_point_two;
     vector<float> chest3 = Constants::volume_point_three;
-    /*
-    		-0.288889f, 0.197531f, 0.330864f,  // 第一行是一个点
-		-0.264198f, 0.022222f, 0.271605f,  // 第二行是一个点
-		-0.320988f, 0.172840f, 0.051852f	 // 第三行是一个点*/
+
     // Compute the sides of the chest triangle
     float chest_side1 = StaticFunction::distance(chest1, chest2); // between chest1 and chest2
     float chest_side2 = StaticFunction::distance(chest2, chest3); // between chest2 and chest3
@@ -363,7 +518,24 @@ void Work::getResult(unsigned char* CT, k4a::image& color_image, int CT_width, i
                 }
             }
         }
-	}
+    }
+    else {
+        std::cout << "CT image size match color image size" << std::endl;
+
+        // 分配CT_resized缓冲区
+        CT_resized = new unsigned char[width * height * 3];
+
+        // 实现图像的垂直翻转
+        for (int y = 0; y < height; y++) {
+            int src_y = height - 1 - y; // 计算源图像的行索引
+            for (int x = 0; x < width; x++) {
+                for (int c = 0; c < 3; c++) {
+                    // 将像素从源图像复制到目标图像
+                    CT_resized[(y * width + x) * 3 + c] = CT[(src_y * width + x) * 3 + c];
+                }
+            }
+        }
+    }
 
 
     // 计算亮度（灰度值），并进行gamma校正，作为alpha通道
@@ -418,9 +590,7 @@ void Work::getResult(unsigned char* CT, k4a::image& color_image, int CT_width, i
     }
 
     // 释放临时内存
-    if (CT_width != width || CT_height != height) {
-        delete[] CT_resized;
-    }
+    delete[] CT_resized;
     delete[] alpha_channel;
     timer.stop("Code Segment get result");
 
