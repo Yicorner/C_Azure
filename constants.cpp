@@ -28,4 +28,10 @@ namespace Constants {
 
 	int width = 1920;
 	int height = 1080;
+
+    int window_width = 1920;
+	int window_height = 1080;
+
+	int window_location_x = 0;
+	int window_location_y = 0;
 }

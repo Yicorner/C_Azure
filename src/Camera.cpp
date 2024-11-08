@@ -98,7 +98,7 @@ void Camera::moveCamera(BodyLocation bodylocation, std::vector<std::vector<float
         camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, trueman2leg);
     }
     camera2fakemanMat = glm::transpose(camera2fakemanMat);
-    setViewMatrix(glm::vec4(camera2fakemanMat[3]), glm::vec4(camera2fakemanMat[0]), -glm::vec4(camera2fakemanMat[1]), glm::vec4(camera2fakemanMat[2]));
+    setViewMatrix(glm::vec4(camera2fakemanMat[3]), glm::vec4(camera2fakemanMat[0]), glm::vec4(camera2fakemanMat[1]), glm::vec4(camera2fakemanMat[2]));
 }
 
 float Camera::cal_vec3dist(glm::vec3 a, glm::vec3 b)

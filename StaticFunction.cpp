@@ -1,9 +1,11 @@
 ﻿#include "StaticFunction.hpp"
 #include <opencv2/opencv.hpp>
+#include <opencv2/aruco.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
-
+// StaticFunction.cpp
+MultiTimer& StaticFunction::timer = MultiTimer::getInstance();
 void StaticFunction::process_depth_image(int image_id) {
     // 定义深度图像尺寸
     const int depth_width = 640;
@@ -423,4 +425,220 @@ void StaticFunction::removeInvalidLocations(std::vector<std::vector<float>>& bod
             ++it;  // 若不删除，移动到下一个元素
         }
     }
+}
+
+
+cv::Mat StaticFunction::k4aImageToCvMat(const k4a::image& k4aImage) {
+    // 获取图像宽度、高度和格式
+    int width = k4aImage.get_width_pixels();
+    int height = k4aImage.get_height_pixels();
+    k4a_image_format_t format = k4aImage.get_format();
+
+    // 检查图像格式，并根据不同格式创建对应的 cv::Mat
+    switch (format) {
+    case K4A_IMAGE_FORMAT_COLOR_BGRA32: // BGRA 格式（每个像素 4 字节）
+        return cv::Mat(height, width, CV_8UC4, (void*)k4aImage.get_buffer());
+
+    case K4A_IMAGE_FORMAT_DEPTH16: // 16 位深度图像
+        return cv::Mat(height, width, CV_16U, (void*)k4aImage.get_buffer());
+
+    case K4A_IMAGE_FORMAT_IR16: // 16 位红外图像
+        return cv::Mat(height, width, CV_16U, (void*)k4aImage.get_buffer());
+
+    default:
+        throw std::runtime_error("不支持的 k4a::image 格式");
+    }
+}
+
+
+cv::Mat StaticFunction::addCone(const k4a::image& k4aImage) {
+	timer.start("addCone");
+    cv::Mat befres(1080, 1920, CV_8UC4, cv::Scalar(0, 0, 0, 0));
+    cv::Mat ref = StaticFunction::k4aImageToCvMat(k4aImage);
+    // 相机参数
+    double fov_x = 92.75274; // 水平视场角，单位：度
+    double fov_y = 61.11177; // 垂直视场角，单位：度
+    int image_width = 1920;
+    int image_height = 1080;
+    // 计算焦距fx和fy
+    double fx = (image_width / 2.0) / tan((fov_x * CV_PI / 180.0) / 2.0);
+    double fy = (image_height / 2.0) / tan((fov_y * CV_PI / 180.0) / 2.0);
+
+    // 主点坐标（假设在图像中心）
+    double cx = image_width / 2.0;
+    double cy = image_height / 2.0;
+
+    // 构建相机内参矩阵
+    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) <<
+        fx, 0, cx,
+        0, fy, cy,
+        0, 0, 1);
+
+    // 假设无畸变
+    cv::Mat distCoeffs = cv::Mat::zeros(5, 1, CV_64F);
+
+    // 转换为灰度图
+    cv::Mat gray;
+    cv::cvtColor(ref, gray, cv::COLOR_BGR2GRAY);
+
+    // 定义ArUco字典
+    cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
+
+    // 定义检测参数
+    cv::aruco::DetectorParameters parameters;
+
+    // 检测标记
+    std::vector<int> ids;
+    std::vector<std::vector<cv::Point2f>> corners, rejected;
+    cv::aruco::ArucoDetector detector(dictionary, parameters);
+
+    detector.detectMarkers(gray, corners, ids, rejected);
+
+
+    double coneHeight = 0.30;  // 圆锥体的高度
+    double coneRadius = 0.015; // 圆锥体底面半径
+
+
+    // 如果检测到标记
+    if (ids.size() > 0)
+    {
+        // 假设标记的实际边长为0.05米（5厘米），请根据实际情况修改
+        float markerLength = 0.05f;
+
+        // 估计姿态
+        std::vector<cv::Vec3d> rvecs, tvecs;
+        cv::aruco::estimatePoseSingleMarkers(corners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
+
+        // 绘制结果并输出
+        for (size_t i = 0; i < ids.size(); i++)
+        {
+            // 绘制标记边框
+            cv::cvtColor(befres, befres, cv::COLOR_BGRA2BGR);
+            std::cout << befres.channels() << " " << befres.total() << " " << befres.size << std::endl;
+            cv::aruco::drawDetectedMarkers(befres, corners, ids);
+
+            // 绘制坐标轴
+            // 如果aruco命名空间下没有drawAxis，可以使用cv::drawFrameAxes
+            cv::drawFrameAxes(befres, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
+
+            //rvecs[i][0] *= -1;
+            //rvecs[i][1] *= -1;
+            //rvecs[i][2] *= -1;
+            //double angle = cv::norm(rvecs[i]);  // 获取旋转角度（弧度）
+            //double new_angle = angle + CV_PI;  // 增加 180 度
+            //rvecs[i] = rvecs[i] * (new_angle / angle);
+            //std::cout << rvecs[i] << std::endl;
+
+            // 输出标记ID、坐标和朝向
+            /*std::cout << "标记ID: " << ids[i] << std::endl;
+            std::cout << "平移向量 tvec: [" << tvecs[i][0] << ", " << tvecs[i][1] << ", " << tvecs[i][2] << "]" << std::endl;
+            std::cout << "旋转向量 rvec: [" << rvecs[i][0] << ", " << rvecs[i][1] << ", " << rvecs[i][2] << "]" << std::endl;
+            std::cout << std::endl;*/
+
+            // 将旋转向量转换为旋转矩阵
+            cv::Mat R;
+            cv::Rodrigues(rvecs[i], R);
+            //std::cout << R.at<double>(0, 0) << " " << R.at<double>(0, 1) << " " << R.at<double>(0, 2) << std::endl;
+
+            // 创建旋转平移矩阵
+            cv::Mat Rt = cv::Mat::zeros(3, 4, CV_64F);
+            R.copyTo(Rt(cv::Rect(0, 0, 3, 3)));  // 将旋转矩阵 R 复制到 Rt 的前 3 列
+
+            // 将平移向量 tvec 转换为 cv::Mat 并赋值给 Rt 的最后一列
+            cv::Mat tvecMat = (cv::Mat_<double>(3, 1) << tvecs[i][0], tvecs[i][1], tvecs[i][2]);
+            tvecMat.copyTo(Rt.col(3));  // 确保 tvecMat 格式与 Rt 的第四列匹配
+
+
+            // 创建4x4齐次变换矩阵
+            cv::Mat transformMatrix = cv::Mat::eye(4, 4, CV_64F);  // 创建一个4x4单位矩阵
+            Rt.copyTo(transformMatrix(cv::Rect(0, 0, 4, 3)));  // 将3x4矩阵复制到4x4矩阵的前3行
+
+
+            // 打印旋转平移矩阵
+            //std::cout << "4x4旋转平移矩阵: " << std::endl << transformMatrix << std::endl;
+
+
+
+
+            cv::Vec3d rvec = rvecs[i];
+            cv::Vec3d tvec = tvecs[i];
+
+
+            // 圆锥体顶点位置，沿 z 轴方向延伸 coneHeight
+            cv::Point3d coneTip = cv::Point3d(tvec[0], tvec[1], tvec[2]) - //!!!
+                cv::Point3d(R.at<double>(0, 2) * coneHeight,
+                    R.at<double>(1, 2) * coneHeight,
+                    R.at<double>(2, 2) * coneHeight);
+            /*std::cout << R << std::endl;
+            std::cout << "圆锥高度：" << coneHeight << std::endl;
+            std::cout << "z轴延伸方向：" << R.at<double>(0, 2) << " " << R.at<double>(1, 2) << " " << R.at<double>(2, 2) << std::endl;
+            std::cout << "圆锥轴向量：" << R.at<double>(0, 2) * coneHeight << " " << R.at<double>(1, 2) * coneHeight << " " << R.at<double>(2, 2) * coneHeight << std::endl;
+            std::cout << "coneTip: " << coneTip << std::endl;*/
+            if (coneTip.z <= 0) coneTip.z = 0.000001;
+
+            std::vector<cv::Point3d> points3Dtmp = { cv::Point3d(tvec[0], tvec[1], tvec[2]), cv::Point3d(coneTip) };
+            std::vector<cv::Point2d> points2Dtmp;
+            cv::projectPoints(points3Dtmp, cv::Vec3d(0, 0, 0), cv::Vec3d(0, 0, 0), cameraMatrix, distCoeffs, points2Dtmp);
+            //cv::line(image, points2Dtmp[1], points2Dtmp[0], cv::Scalar(255, 255, 0), 4);
+            std::cout << points2Dtmp[0] << " " << points2Dtmp[1] << std::endl;
+
+            // 生成底面圆上的点
+            std::vector<cv::Point3d> coneBasePoints;
+            int numPoints = 32; // 底面圆上的点数
+            for (int j = 0; j < numPoints; j++)
+            {
+                double angle = 2 * CV_PI * j / numPoints;
+                double x = coneRadius * cos(angle);
+                double y = coneRadius * sin(angle);
+
+                // 将圆上的点从局部坐标系转换到全局坐标系
+                cv::Point3d pointOnCircle = cv::Point3d(tvec[0], tvec[1], tvec[2]) +
+                    cv::Point3d(R.at<double>(0, 0) * x + R.at<double>(0, 1) * y,
+                        R.at<double>(1, 0) * x + R.at<double>(1, 1) * y,
+                        R.at<double>(2, 0) * x + R.at<double>(2, 1) * y);
+
+                coneBasePoints.push_back(pointOnCircle);
+            }
+
+            // 将 3D 点投影到 2D 图像平面
+            std::vector<cv::Point3d> points3D = coneBasePoints;
+            points3D.push_back(coneTip); // 将顶点添加到投影点
+            std::vector<cv::Point2d> points2D;
+            cv::projectPoints(points3D, cv::Vec3d(0, 0, 0), cv::Vec3d(0, 0, 0), cameraMatrix, distCoeffs, points2D);
+
+            // 绘制底面圆
+            /*for (size_t j = 0; j < numPoints; j++)
+            {
+                cv::line(image, points2D[j], points2D[(j + 1) % numPoints], cv::Scalar(0, 255, 0), 2);
+            }*/
+
+            // 绘制从顶点到底面圆的线段，形成圆锥体
+            for (size_t j = 0; j < numPoints; j++)
+            {
+                cv::line(befres, points2D[j], points2D.back(), cv::Scalar(0, 0, 255), 1);
+            }
+        }
+    }
+    else
+    {
+        std::cout << "未检测到ArUco标记。" << std::endl;
+    }
+	timer.stop("addCone");
+    return befres;
+}
+
+// 计算向量 AB 和 BC 的二维叉积
+float StaticFunction::crossProduct2D(const std::vector<float>& A, const std::vector<float>& B, const std::vector<float>& C) {
+    return (B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0]);
+}
+
+// 判断两个三角形的二维顺序是否一致
+bool StaticFunction::isSameOrder(const std::vector<float>& chest1, const std::vector<float>& chest2, const std::vector<float>& chest3,
+    const std::vector<float>& a, const std::vector<float>& b, const std::vector<float>& c) {
+    // 计算两个三角形的二维叉积
+    float crossChest = StaticFunction::crossProduct2D(chest1, chest2, chest3);
+    float crossABC = StaticFunction::crossProduct2D(a, b, c);
+
+    // 判断两个叉积的符号是否相同，正负相同即顺序一致
+    return (crossChest * crossABC > 0);
 }

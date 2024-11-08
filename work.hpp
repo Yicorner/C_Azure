@@ -27,7 +27,9 @@ public:
 	MultiTimer& timer = MultiTimer::getInstance();
 	static int frame_id;
 	static int save_file_id;
-	cv::Mat result; // 保存最终的AR图
+
+
+
 	k4a::device* device; // 引用k4a::device对象
 	k4a_device_configuration_t* config; // 引用k4a_device_configuration_t对象
 	std::atomic<State> state; // 用于记录当前的状态
@@ -37,17 +39,32 @@ public:
 		config(&config), get3dcords(device, config), vr(Constants::width, Constants::height, "Volume-Renderer")
 	{
 		vr.setShaderAndData();
+		// Allocate the result2 buffer if it hasn't been allocated yet
+		if (result2.empty()) {
+			result2.create(1080, 1920, CV_8UC3);
+		}
+		// 分配大小为width * height * 4的result缓冲区，如果尚未分配
+		if (result.empty()) {
+			result.create(1080, 1920, CV_8UC3);
+		}
+		// 分配大小为width * height * 4的result_with_cone缓冲区，如果尚未分配
+		if (result_with_cone.empty()) {
+			result_with_cone.create(1080, 1920, CV_8UC3);
+		}
+		previous_result_ready = false;
 	}; // 构造函数
 
 	~Work() {}// 析构函数
 	void run(GetSample& sample); // 开始构建最终的AR图
 	int get_body_location(k4a::image& color_image) ;// 获取人体位置
 	void getResult(unsigned char* CT, k4a::image& color_image, int CT_width, int CT_height); // 得到最终的AR图
+	void getResult2(const cv::Mat& result_with_cone, const cv::Mat& result);
 	int resort_3D_bodylocation_list(std::vector<std::vector<float>>& body3Dlocation_list); // 对人体位置列表进行排序
 	void run_multi_thread(GetSample& sample);
 	void run_temp(GetSample& sample);
 	void run_multi_thread2(GetSample& sample);
 
+	void getResultWithMat(unsigned char* CT, cv::Mat& color_image, int CT_width, int CT_height);
 private:
 	k4a::image color_image2; // 声明一个颜色图像，用于在类work中获取数据
 	k4a::image depth_image2; // 声明一个深度图像，用于在类work中获取数据
@@ -74,5 +91,15 @@ private:
 	std::condition_variable cv3;
 	void loop_get_body_location(); // 循环获取人体位置
 	void loop_get_3D_body_location(); // 循环获取人体位置
+
+	cv::Mat result; // 保存最终的AR图
+	cv::Mat result2; // 保存最终的AR图
+	cv::Mat result_with_cone; // 保存最终的AR图
+
+	bool previous_result_ready;
+	cv::Mat previous_result_with_cone;
+	cv::Mat previous_result;
+
+
 };
 #endif // PROCESS_IMAGE_HPP

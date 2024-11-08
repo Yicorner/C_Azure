@@ -92,6 +92,12 @@ namespace Constants {
 
 	extern int width;
 	extern int height;
+
+	extern int window_width;
+	extern int window_height;
+
+	extern int window_location_x;
+	extern int window_location_y;
 }
 
 #endif // CONSTANTS_HPP

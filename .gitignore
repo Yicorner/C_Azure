@@ -14,7 +14,7 @@ verify_color_image2/
 normal_log.txt
 error_log.txt
 a.txt
-
+tmp.cpp
 # Visual Studio project files
 C_Azure.sln
 C_Azure.vcxproj

@@ -5,6 +5,8 @@
 #include <string>
 #include <k4a/k4a.hpp>
 #include <opencv2/opencv.hpp>
+#include "MultiTimer.hpp"
+
 // 函数声明
 class StaticFunction
 {
@@ -23,5 +25,11 @@ public:
 	static float distance(std::vector<float>& p1, std::vector<float>& p2); // 计算两个点之间的距离
 	static void display_image_from_filename(const std::string& color_filename, const std::string& depth_filename); // 从文件中获取数据并显示
 	static void removeInvalidLocations(std::vector<std::vector<float>>& body3Dlocation_list, const std::vector<float>& comp); // 移除无效的位置
+	static cv::Mat k4aImageToCvMat(const k4a::image& k4aImage);
+	static cv::Mat addCone(const k4a::image& k4aImage);
+
+	static float crossProduct2D(const std::vector<float>& A, const std::vector<float>& B, const std::vector<float>& C);
+	static bool isSameOrder(const std::vector<float>& chest1, const std::vector<float>& chest2, const std::vector<float>& chest3, const std::vector<float>& a, const std::vector<float>& b, const std::vector<float>& c);
+	static MultiTimer& timer;
 };
 #endif
