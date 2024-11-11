@@ -98,6 +98,8 @@ namespace Constants {
 
 	extern int window_location_x;
 	extern int window_location_y;
+
+	extern int if_teapot;
 }
 
 #endif // CONSTANTS_HPP

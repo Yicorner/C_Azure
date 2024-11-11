@@ -34,4 +34,6 @@ namespace Constants {
 
 	int window_location_x = 0;
 	int window_location_y = 0;
+
+    int if_teapot = 1;
 }

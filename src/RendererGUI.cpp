@@ -57,7 +57,7 @@ void RendererGUI::setShaderAndData() {
     volren.loadShader(Constants::Shaderfile, false);
     glClear(GL_COLOR_BUFFER_BIT);
     volren.datasize_bytes = 1;
-    volren.readVolumeData(Constants::Datafile); //gai
+    volren.readVolumeData(Constants::Datafile);
 }
 
 void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list, int min_val, int max_val, float alpha_scale)

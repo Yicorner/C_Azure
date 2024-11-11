@@ -124,13 +124,6 @@ bool RendererCore::loadShader(std::string fn, bool reload)
             glGetProgramiv(cs_programID, GL_COMPUTE_WORK_GROUP_SIZE, workgroup_size);
             workgroups_x = window_size.x / workgroup_size[0];
             workgroups_y = window_size.y / workgroup_size[1];
-			//Êä³öworkgroup_size[0] workgroup_size[1] workgroup_size[2]
-			//std::cout << "workgroup_size[0]: " << workgroup_size[0] << std::endl;
-			//std::cout << "workgroup_size[1]: " << workgroup_size[1] << std::endl;
-			//std::cout << "workgroup_size[2]: " << workgroup_size[2] << std::endl;
-			//Êä³öworkgroups_x workgroups_y
-			//std::cout << "workgroups_x: " << workgroups_x << std::endl;
-			//std::cout << "workgroups_y: " << workgroups_y << std::endl;
             glUseProgram(cs_programID);
             glUniform1f(0, alpha_scale);
             if(!loaded_dataset.empty())

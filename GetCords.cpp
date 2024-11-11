@@ -14,7 +14,6 @@ int Get3DCords::get_cords_with_filename(int x, int y, const std::string&  depth_
 		// Obtain calibration data only once
 
         // Create a transformation object
-        k4a::transformation transformation = k4a::transformation(calibration);
 
         int depth_width = 640;   // Set to your depth image width
         int depth_height = 576;  // Set to your depth image height
@@ -174,7 +173,6 @@ int Get3DCords::get_cords_with_depth_image(int ox, int oy, k4a::image depth_imag
 
 	timer.start("Code segment get_cords_with_depth_image");
     // Create a transformation object
-    k4a::transformation transformation = k4a::transformation(calibration);
 
     int depth_width = depth_image.get_width_pixels();   // Set to your depth image width
     int depth_height = depth_image.get_height_pixels();  // Set to your depth image height
@@ -325,8 +323,6 @@ std::vector<float> Get3DCords::get_cords_with_depth_image2(int ox, int oy, k4a::
 
 
     timer.start("Code segment get_cords_with_depth_image");
-    // Create a transformation object
-    k4a::transformation transformation = k4a::transformation(calibration);
 
     int depth_width = depth_image.get_width_pixels();   // Set to your depth image width
     int depth_height = depth_image.get_height_pixels();  // Set to your depth image height
@@ -344,7 +340,10 @@ std::vector<float> Get3DCords::get_cords_with_depth_image2(int ox, int oy, k4a::
     k4a_float2_t target_point2d;
 
     // Use the calibration function to convert the color 2D point to depth 2D point
+    timer.start("Code Segment convert_color_2d_to_depth_2d");
     bool valid = calibration.convert_color_2d_to_depth_2d(source_point2d, depth_image, &target_point2d);
+    timer.stop("Code Segment convert_color_2d_to_depth_2d");
+
 
     if (valid)
     {
@@ -406,13 +405,14 @@ std::vector<float> Get3DCords::get_cords_with_depth_image2(int ox, int oy, k4a::
         k4a_float3_t target_point3d;
 
         // Use the calibration function to convert the 2D depth point to 3D in the color camera coordinate system
+		timer.start("Code Segment convert_2d_to_3d");
         bool valid = calibration.convert_2d_to_3d(
             source_point2d,
             source_depth,
             K4A_CALIBRATION_TYPE_DEPTH, // Source camera
             K4A_CALIBRATION_TYPE_COLOR, // Target camera
             &target_point3d);
-
+        timer.stop("Code Segment convert_2d_to_3d");
         if (valid)
         {
             std::vector<float> result;
