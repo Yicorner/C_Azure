@@ -6,10 +6,11 @@
 #include <functional>
 #include <iostream>
 #include <chrono>
+#include <thread>
 double mouseX, mouseY;
 
-RendererGUI::RendererGUI(int window_width, int window_height, std::string title, bool is_fullscreen) :
-    glfw_manager(window_width, window_height, title, is_fullscreen)
+RendererGUI::RendererGUI(int window_width, int window_height, std::string title, k4a::device& device, k4a_device_configuration_t& config, bool is_fullscreen) :
+	glfw_manager(window_width, window_height, title, is_fullscreen), volren(device, config)
 {
     profiler_shown = true;
     tools_shown = false;
@@ -18,7 +19,9 @@ RendererGUI::RendererGUI(int window_width, int window_height, std::string title,
     renderer_start = false;
     mspf = mspk = 0.0f;
     profiler_wheight = tools_wheight = 0;
-}
+    this->device = &device;
+    this->config = &config;
+} 
 
 RendererGUI::~RendererGUI()
 {
@@ -63,6 +66,17 @@ void RendererGUI::setShaderAndData() {
 void RendererGUI::run_only_render(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list, int min_val, int max_val, float alpha_scale)
 {
 	timer.start("Code Segment run_only_render");
+
+	//glBindFramebuffer(GL_FRAMEBUFFER, volren.fbo_ID);
+	//glClear(GL_COLOR_BUFFER_BIT);
+    //glUseProgram(volren.cs_programID);
+    //glActiveTexture(GL_TEXTURE1);
+    //glBindTexture(GL_TEXTURE_3D, volren.vol_tex3D);
+    //glUniform3f(1, volren.voxel_size.x, volren.voxel_size.y, volren.voxel_size.z);
+    //glUniform1i(5, (volren.rotate_to_top) ? 1 : 0);
+    //glUniform1i(6, (volren.rotate_to_bottom) ? 1 : 0);
+    //glUniform1i(4, (volren.use_mip) ? 1 : 0);
+
 	volren.min_val = min_val;
 	volren.max_val = max_val;
 	volren.alpha_scale = alpha_scale;
@@ -94,6 +108,9 @@ void RendererGUI::run()
 
     volren.loadShader(Constants::Shaderfile, false);
 
+    if (Constants::if_multi_thread == 3) {
+        volren.MySetup();
+    }
     int initail_load = 1;
     while(!glfwWindowShouldClose(glfw_manager.window))
     {
@@ -154,13 +171,24 @@ void RendererGUI::run()
         }
         showMessageBox(error_title, error_msg);
 
-        if(renderer_start)
-			//std::cout << "Rendering..." << std::endl;
-            volren.render();
+        if (renderer_start) {
+            std::cout << "Rendering..." << std::endl;
+            if (Constants::if_multi_thread == 3)
+            {
+                volren.render2();
+            }
+            else {
+                volren.render();
+            }
+        }
 
+        timer.printStatistics();
+        
         renderFrame();
         glfwSwapBuffers(glfw_manager.window);
         glfwPollEvents();
+        // ÐÝÃß 2 Ãë
+        //std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 

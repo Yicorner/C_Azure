@@ -2,11 +2,14 @@
 #define STATICFUNCTION_HPP
 
 // 包含必要的头文件
+#include <glad/glad.h>
 #include <string>
 #include <k4a/k4a.hpp>
 #include <opencv2/opencv.hpp>
 #include "MultiTimer.hpp"
-
+#include "AllEnum.hpp"
+#include "Eigen/Dense"
+#include <glm/glm.hpp>
 // 函数声明
 class StaticFunction
 {
@@ -31,5 +34,11 @@ public:
 	static float crossProduct2D(const std::vector<float>& A, const std::vector<float>& B, const std::vector<float>& C);
 	static bool isSameOrder(const std::vector<float>& chest1, const std::vector<float>& chest2, const std::vector<float>& chest3, const std::vector<float>& a, const std::vector<float>& b, const std::vector<float>& c);
 	static MultiTimer& timer;
+	static void renderTeapotToFBO(GLuint fbo, unsigned int width, unsigned int height, char* imageData);
+	static glm::mat4 get_transform(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list);
+	static glm::mat4 transform_depthCamera2fakeman(glm::mat3 depthCameraColorCord, glm::mat3 NDCfakemanCord);
+	static float cal_vec3dist(glm::vec3 a, glm::vec3 b);
+	static std::vector<float>  ConeVertice(const k4a::image& k4aImage);
+	static cv::Point2d pixelToNDC(float x, float y);
 };
 #endif

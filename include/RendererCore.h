@@ -7,18 +7,31 @@
 #include "glm/vec3.hpp"
 #include "glm/vec2.hpp"
 #include "Camera.h"
+#include "k4a/k4a.hpp"
+#include "MultiTimer.hpp"
 class RendererCore
 {
     public:
-        RendererCore();
+        RendererCore(k4a::device& device, k4a_device_configuration_t& config);
         ~RendererCore();
         void setup();
+        void MySetup();
         void render();
-        Camera main_cam; // qbh
+        void render2();
+        Camera main_cam;
         unsigned char* img_data_from_core;
         glm::ivec2 window_size, framebuffer_size;
-
+        GLuint vol_tex3D, camera_ubo_ID, fbo_ID, fbo_texID, cs_ID, cs_programID;
+        void setupUBO(bool is_update = false);
+        k4a::device* device; 
+        k4a_device_configuration_t* config; 
+		k4a::image color_image; 
+        GLuint textureID;
+        std::vector<float> vertices;
+        GLuint VAO, VBO, shaderProgram;
+        GLuint ssbo;
     private:
+        MultiTimer& timer = MultiTimer::getInstance();
         friend class RendererGUI;
         void setAlpha();
         void setMinVal();
@@ -27,7 +40,6 @@ class RendererCore
         void setUniforms();
         void setInitialCameraRotation();
         void setupFBO();
-        void setupUBO(bool is_update = false);
         void readVolumeData(std::string fn);
         void getImageContent();
         bool checkRawInfFile(std::string fn);
@@ -43,8 +55,27 @@ class RendererCore
         bool use_mip, rotate_to_bottom, rotate_to_top;
         glm::vec3 voxel_size;
         glm::ivec3 tex3D_dim;
-        GLuint vol_tex3D, camera_ubo_ID, fbo_ID, fbo_texID, cs_ID, cs_programID;
 
+        // 顶点着色器源代码
+        const char* vertexShaderSource = R"(
+    #version 430 core
+    layout (location = 0) in vec2 aPos;
+    void main()
+    {
+        gl_Position = vec4(aPos, 0.0, 1.0);
+    }
+)";
+
+        // 片段着色器源代码
+        const char* fragmentShaderSource = R"(
+    #version 430 core
+    out vec4 FragColor;
+    uniform vec3 lineColor;
+    void main()
+    {
+        FragColor = vec4(lineColor, 1.0);
+    }
+)";
 
 };
 

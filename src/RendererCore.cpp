@@ -11,7 +11,7 @@
 #include "pvm2raw.h"
 #include "stb_image_write.h"
 
-RendererCore::RendererCore() : main_cam(62), histogram(256,0.0f)
+RendererCore::RendererCore(k4a::device& device, k4a_device_configuration_t& config) : main_cam(62), histogram(256,0.0f)
 {
     voxel_size = glm::vec3(1.0f, 1.0f, 1.0f);
     tex3D_dim = glm::vec3(0, 0, 0);
@@ -25,6 +25,13 @@ RendererCore::RendererCore() : main_cam(62), histogram(256,0.0f)
     workgroups_x = workgroups_y = 0;
     use_mip = rotate_to_bottom = rotate_to_top = false;
     img_data_from_core = nullptr;
+    this->device = &device;
+	this->config = &config;
+    //k4a::capture capture;
+    //if ((device).get_capture(&capture, std::chrono::milliseconds(5000))) {
+    //    color_image = capture.get_color_image();
+    //}
+    vertices = {};
 }
 
 RendererCore::~RendererCore()
@@ -41,11 +48,85 @@ void RendererCore::setup()
 	glReadBuffer(GL_COLOR_ATTACHMENT0); //Read from Color Attachment 0
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); //Bind Framebuffer to draw to
 	glDrawBuffer(GL_BACK); //Draw to Back Buffer
-    
+
     //Setup a texture and load data later..
 	glGenTextures(1, &vol_tex3D); //Generate a 3D Texture
+    
 }
+void RendererCore::MySetup()
+{
 
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLuint textureLocation = glGetUniformLocation(cs_programID, "inputTexture");
+    glUniform1i(textureLocation, 2);
+
+    glGenBuffers(1, &ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo); // Binding point 1 as per compute shader
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    //glGenVertexArrays(1, &VAO);
+    //glGenBuffers(1, &VBO);
+
+    //// 绑定 VAO
+    //glBindVertexArray(VAO);
+
+    //// 绑定 VBO，传递顶点数据
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+
+    //// 配置顶点属性
+    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
+
+    //// 编译顶点着色器
+    //GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    //glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    //glCompileShader(vertexShader);
+
+    //// 检查编译错误
+    //int success;
+    //char infoLog[512];
+    //glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    //if (!success) {
+    //    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    //    std::cerr << "Vertex Shader Compilation Failed:\n" << infoLog << std::endl;
+    //}
+
+    //// 编译片段着色器
+    //GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    //glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    //glCompileShader(fragmentShader);
+
+    //// 检查编译错误
+    //glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    //if (!success) {
+    //    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+    //    std::cerr << "Fragment Shader Compilation Failed:\n" << infoLog << std::endl;
+    //}
+
+    //// 链接着色器程序
+    //shaderProgram = glCreateProgram();
+    //glAttachShader(shaderProgram, vertexShader);
+    //glAttachShader(shaderProgram, fragmentShader);
+    //glLinkProgram(shaderProgram);
+
+    //// 检查链接错误
+    //glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    //if (!success) {
+    //    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    //    std::cerr << "Shader Program Linking Failed:\n" << infoLog << std::endl;
+    //}
+
+    //// 删除着色器
+    //glDeleteShader(vertexShader);
+    //glDeleteShader(fragmentShader);
+
+}
 bool RendererCore::checkRawInfFile(std::string fn)
 {
     std::ifstream inf_file;
@@ -144,8 +225,10 @@ void RendererCore::render()
     GLuint query;
     glGenQueries(1, &query);
 
-    if(main_cam.is_changed)
+    if (main_cam.is_changed) {
+		std::cout << "in render setupUBO\n";
         setupUBO(true);
+    }
 
     glBindImageTexture(0, fbo_texID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
@@ -163,6 +246,81 @@ void RendererCore::render()
                       GL_COLOR_BUFFER_BIT,
                       GL_LINEAR
                       );
+}
+
+void RendererCore::render2()
+{
+	timer.start("render");
+
+	timer.start("RendererCode capture");
+    //k4a::capture capture;
+    //if ((*device).get_capture(&capture, std::chrono::milliseconds(5000))) {
+    //    color_image = capture.get_color_image();
+    //}
+    const uint8_t* color_data = color_image.get_buffer();  // 获取图像数据指针
+    timer.stop("RendererCode capture");
+
+
+    timer.start("RendererCode transfrom");
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, color_image.get_width_pixels(), color_image.get_height_pixels(), 0, GL_BGRA, GL_UNSIGNED_BYTE, color_data);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+    timer.stop("RendererCode transfrom");
+
+    //**********************************************************************************
+    GLuint64 elapsed_time = 0;
+    GLuint query;
+    glGenQueries(1, &query);
+
+    if (main_cam.is_changed) {
+        std::cout << "in render setupUBO\n";
+        setupUBO(true);
+    }
+
+    glBindImageTexture(0, fbo_texID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+    glBeginQuery(GL_TIME_ELAPSED, query);
+    glDispatchCompute(workgroups_x, workgroups_y, 1);
+    glEndQuery(GL_TIME_ELAPSED);
+    glGetQueryObjectui64v(query, GL_QUERY_RESULT, &elapsed_time);
+    kerneltime_sum += (double)elapsed_time / 1000000.0;
+
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+
+
+    //*************************************************************************************
+    //// 使用着色器程序
+    //glBindFramebuffer(GL_FRAMEBUFFER, fbo_ID);
+    ////// 渲染指令
+    ////glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    ////glClear(GL_COLOR_BUFFER_BIT);
+    //glUseProgram(shaderProgram);
+
+    //// 设置线段颜色（红色）
+    //GLint colorLocation = glGetUniformLocation(shaderProgram, "lineColor");
+    //glUniform3f(colorLocation, 1.0f, 0.0f, 0.0f);
+
+    //// 绑定 VAO，绘制线段
+    //glBindVertexArray(VAO);
+
+
+    //glDrawArrays(GL_LINES, 0, vertices.size() / 2);
+    //glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_ID); // Bind FBO to read from
+    //glReadBuffer(GL_COLOR_ATTACHMENT0);             // Read from Color Attachment 0
+    //glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);      // Bind default framebuffer to draw to
+    //glDrawBuffer(GL_BACK);                          // Draw to Back Buffer
+    glBlitFramebuffer(0, 0, framebuffer_size.x, framebuffer_size.y,
+        0, 0, framebuffer_size.x, framebuffer_size.y,
+        GL_COLOR_BUFFER_BIT,
+        GL_LINEAR
+    );
+    timer.stop("render");
 }
 
 bool RendererCore::saveImage(std::string fn, std::string ext)

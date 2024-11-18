@@ -11,11 +11,12 @@
 #include "imgui_impl_opengl3.h"
 #include "ImGuiFileBrowser.h"
 #include "MultiTimer.hpp"
+#include <k4a/k4a.hpp>
 
 class RendererGUI
 {
     public:
-        RendererGUI(int window_width, int window_height, std::string title, bool is_fullscreen = false);
+        RendererGUI(int window_width, int window_height, std::string title,  k4a::device& device, k4a_device_configuration_t& config, bool is_fullscreen = false);
         ~RendererGUI();
         void run();
         void run_only_save_image(std::string fn, std::string ext);
@@ -23,6 +24,9 @@ class RendererGUI
 		void run_only_render(BodyLocation bodylocation, std::vector<std::vector<float>> body3Dlocation_list, int min_val = 0, int max_val = 255, float alpha_scale = 1);
         RendererCore volren;
         void setShaderAndData();
+
+        k4a::device* device; // 引用k4a::device对象
+        k4a_device_configuration_t* config; // 引用k4a_device_configuration_t对象
 
     private:
         MultiTimer& timer = MultiTimer::getInstance();

@@ -17,6 +17,7 @@ class GetSample;
 class Work
 {
 public:
+
 	RendererGUI vr;
 	k4a::image color_image; // 声明一个颜色图像，用于在类work中获取数据
 	k4a::image depth_image; // 声明一个深度图像，用于在类work中获取数据
@@ -28,17 +29,14 @@ public:
 	static int frame_id;
 	static int save_file_id;
 
-
-
 	k4a::device* device; // 引用k4a::device对象
 	k4a_device_configuration_t* config; // 引用k4a_device_configuration_t对象
 	std::atomic<State> state; // 用于记录当前的状态
 	BodyLocation bodylocation; // 0代表未识别到，1代表头部，2代表胸部，3代表肚子
 	Work(k4a::device& device, k4a_device_configuration_t& config) :
 		bodylocation(Constants::body_location), state(Constants::state), device(&device),
-		config(&config), get3dcords(device, config), vr(Constants::width, Constants::height, "Volume-Renderer")
+		config(&config), get3dcords(device, config), vr(Constants::width, Constants::height, "Volume-Renderer", device, config, false)
 	{
-		vr.setShaderAndData();
 		// Allocate the result2 buffer if it hasn't been allocated yet
 		if (result2.empty()) {
 			result2.create(1080, 1920, CV_8UC3);
@@ -52,6 +50,12 @@ public:
 			result_with_cone.create(1080, 1920, CV_8UC3);
 		}
 		previous_result_ready = false;
+		// 初始化color_image和depth_image
+		k4a::capture capture;
+		if ((device).get_capture(&capture, std::chrono::milliseconds(5000))) {
+			color_image = capture.get_color_image();
+			depth_image = capture.get_depth_image();
+		}
 	}; // 构造函数
 
 	~Work() {}// 析构函数
@@ -63,8 +67,13 @@ public:
 	void run_multi_thread(GetSample& sample);
 	void run_temp(GetSample& sample);
 	void run_multi_thread2(GetSample& sample);
-
+	void run_multi_thread_with_shader(GetSample& sample);
 	void getResultWithMat(unsigned char* CT, cv::Mat& color_image, int CT_width, int CT_height);
+	void set_body_location(); // 循环获取人体位置
+	void capture_image();
+	void set_vertices();
+	void set_color_image_to_core();
+
 private:
 	k4a::image color_image2; // 声明一个颜色图像，用于在类work中获取数据
 	k4a::image depth_image2; // 声明一个深度图像，用于在类work中获取数据

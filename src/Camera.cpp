@@ -108,15 +108,6 @@ float Camera::cal_vec3dist(glm::vec3 a, glm::vec3 b)
 
 glm::mat4 Camera::transform_depthCamera2fakeman(glm::mat3 depthCameraColorCord, glm::mat3 NDCfakemanCord)
 {
- //   //print glm::vec3(NDCfakemanCord[0]
-	//std::cout << "NDCfakemanCord[0] : " << glm::vec3(NDCfakemanCord[0]).x << " " << glm::vec3(NDCfakemanCord[0]).y << " " << glm::vec3(NDCfakemanCord[0]).z << std::endl;
-	//std::cout << "NDCfakemanCord[1] : " << glm::vec3(NDCfakemanCord[1]).x << " " << glm::vec3(NDCfakemanCord[1]).y << " " << glm::vec3(NDCfakemanCord[1]).z << std::endl;
-	//std::cout << "NDCfakemanCord[2] : " << glm::vec3(NDCfakemanCord[2]).x << " " << glm::vec3(NDCfakemanCord[2]).y << " " << glm::vec3(NDCfakemanCord[2]).z << std::endl;
- //   // print glm::vec3(depthCameraColorCord[0]
-	//std::cout << "depthCameraColorCord[0] : " << glm::vec3(depthCameraColorCord[0]).x << " " << glm::vec3(depthCameraColorCord[0]).y << " " << glm::vec3(depthCameraColorCord[0]).z << std::endl;
-	//std::cout << "depthCameraColorCord[1] : " << glm::vec3(depthCameraColorCord[1]).x << " " << glm::vec3(depthCameraColorCord[1]).y << " " << glm::vec3(depthCameraColorCord[1]).z << std::endl;
-	//std::cout << "depthCameraColorCord[2] : " << glm::vec3(depthCameraColorCord[2]).x << " " << glm::vec3(depthCameraColorCord[2]).y << " " << glm::vec3(depthCameraColorCord[2]).z << std::endl;
-
 
     float cameraDist1 = cal_vec3dist(glm::vec3(depthCameraColorCord[0]), glm::vec3(depthCameraColorCord[1]));
     float cameraDist2 = cal_vec3dist(glm::vec3(depthCameraColorCord[1]), glm::vec3(depthCameraColorCord[2]));
@@ -131,9 +122,6 @@ glm::mat4 Camera::transform_depthCamera2fakeman(glm::mat3 depthCameraColorCord, 
     float scaleCamera2fakeman = (cameraDist1 / NDCDist1 + cameraDist2 / NDCDist2 + cameraDist3 / NDCDist3) / 3;
     // norm them into opengl world cordinates
 	glm::mat3 normedCameraColorCords = depthCameraColorCord / scaleCamera2fakeman;
-	/*std::cout << "normedCameraColorCords[0] : " << glm::vec3(normedCameraColorCords[0]).x << " " << glm::vec3(normedCameraColorCords[0]).y << " " << glm::vec3(normedCameraColorCords[0]).z << std::endl;
-	std::cout << "normedCameraColorCords[1] : " << glm::vec3(normedCameraColorCords[1]).x << " " << glm::vec3(normedCameraColorCords[1]).y << " " << glm::vec3(normedCameraColorCords[1]).z << std::endl;
-	std::cout << "normedCameraColorCords[2] : " << glm::vec3(normedCameraColorCords[2]).x << " " << glm::vec3(normedCameraColorCords[2]).y << " " << glm::vec3(normedCameraColorCords[2]).z << std::endl;*/
 	
 	// move the camera to proper origin
     glm::vec3 centroid_normed = (normedCameraColorCords[0] + normedCameraColorCords[1] + normedCameraColorCords[2]) / 3.0f;
@@ -197,26 +185,6 @@ glm::mat4 Camera::transform_depthCamera2fakeman(glm::mat3 depthCameraColorCord, 
     for (int i = 0; i < 3; ++i) {
         transformed_points[i] = R * normedCameraColorCords[i] + t;
     }
- //   // 输出R矩阵
- //   std::cout << "R[0] : " << R[0][0] << " " << R[0][1] << " " << R[0][2] << std::endl;
- //   std::cout << "R[1] : " << R[1][0] << " " << R[1][1] << " " << R[1][2] << std::endl;
- //   std::cout << "R[2] : " << R[2][0] << " " << R[2][1] << " " << R[2][2] << std::endl;
- //   // 输出R的行列式
- //   std::cout << "R determinant: " << R_eigen.determinant() << std::endl;
- //   // 输出t向量
- //   std::cout << "t : " << t.x << " " << t.y << " " << t.z << std::endl;
-	//// 输出normedCameraColorCords[0]
- //   std::cout << "normedCameraColorCords[0] : " << glm::vec3(normedCameraColorCords[0]).x << " " << glm::vec3(normedCameraColorCords[0]).y << " " << glm::vec3(normedCameraColorCords[0]).z << std::endl;
- //   // 输出R * normedCameraColorCords[0] + t
-	//std::cout << "R * normedCameraColorCords[0] + t : " << (R * normedCameraColorCords[0] + t).x << " " << (R * normedCameraColorCords[0] + t).y << " " << (R * normedCameraColorCords[0] + t).z << std::endl;
-     
-    // Verify the result
-    //for (int i = 0; i < 3; ++i) {
-    //    std::cout << "Transformed Point " << i << ": " << transformed_points[i].x << ", "
-    //        << transformed_points[i].y << ", " << transformed_points[i].z << std::endl;
-    //    std::cout << "Target Point " << i << ": " << NDCfakemanCord[i].x << ", "
-    //        << NDCfakemanCord[i].y << ", " << NDCfakemanCord[i].z << std::endl;
-    //}
 
     // Initialize the transformation matrix to identity
     glm::mat4 camera2fakemanMat(1.0f); // Sets diagonal elements to 1, rest to 0
@@ -244,11 +212,6 @@ glm::mat4 Camera::transform_depthCamera2fakeman(glm::mat3 depthCameraColorCord, 
     camera2fakemanMat[3][2] = 0.0f;    // Fourth column, third row
     camera2fakemanMat[3][3] = 1.0f;    // Fourth column, fourth row
 
-    // 输出变换矩阵
-	//std::cout << "camera2fakemanMat[0] : " << camera2fakemanMat[0].x << " " << camera2fakemanMat[0].y << " " << camera2fakemanMat[0].z << " " << camera2fakemanMat[0].w << std::endl;
-	//std::cout << "camera2fakemanMat[1] : " << camera2fakemanMat[1].x << " " << camera2fakemanMat[1].y << " " << camera2fakemanMat[1].z << " " << camera2fakemanMat[1].w << std::endl;
-	//std::cout << "camera2fakemanMat[2] : " << camera2fakemanMat[2].x << " " << camera2fakemanMat[2].y << " " << camera2fakemanMat[2].z << " " << camera2fakemanMat[2].w << std::endl;
-	//std::cout << "camera2fakemanMat[3] : " << camera2fakemanMat[3].x << " " << camera2fakemanMat[3].y << " " << camera2fakemanMat[3].z << " " << camera2fakemanMat[3].w << std::endl;
 
 	return camera2fakemanMat;
 }
@@ -263,10 +226,10 @@ void Camera::setViewMatrix(glm::vec4 eye, glm::vec4 side, glm::vec4 up, glm::vec
      * has the look direction negative to that of the Z axis. Hence to get the basis vector in Z we have to invert the look vector.
      */
     view2world_mat = glm::mat4(side, up, -look_at, eye);
-    //std::cout << "Eye: " << eye.x << " " << eye.y << " " << eye.z << std::endl;
-    //std::cout << "Look At: " << look_at.x << " " << look_at.y << " " << look_at.z << std::endl;
-    //std::cout << "Side: " << side.x << " " << side.y << " " << side.z << std::endl;
-    //std::cout << "Up: " << up.x << " " << up.y << " " << up.z << std::endl;
+    std::cout << "Eye: " << eye.x << " " << eye.y << " " << eye.z << std::endl;
+    std::cout << "Look At: " << look_at.x << " " << look_at.y << " " << look_at.z << std::endl;
+    std::cout << "Side: " << side.x << " " << side.y << " " << side.z << std::endl;
+    std::cout << "Up: " << up.x << " " << up.y << " " << up.z << std::endl;
 }
 
 void Camera::setUBO(std::vector<float>& cam_data)
