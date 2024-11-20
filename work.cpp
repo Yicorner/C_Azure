@@ -389,13 +389,15 @@ void Work::run_multi_thread_with_shader(GetSample& sample) {
     if (state == DYNAMIC) {
         std::thread t1(&Work::set_body_location, this);
         std::thread t2(&Work::capture_image, this);
-        std::thread t3(&Work::set_vertices, this);
+        //std::thread t3(&Work::set_vertices, this);
         std::thread t4(&Work::set_color_image_to_core, this);
+        std::thread t5(&Work::set_matrix, this);
         vr.run();
         t1.join();
         t2.join();
-        t3.join();
+        //t3.join();
         t4.join();
+        t5.join();
     }
 
 }
@@ -416,6 +418,22 @@ void Work::set_vertices() {
         color_mtx2.unlock();
         vr.volren.vertices = StaticFunction::ConeVertice(color_image3);
 	}
+}
+
+void Work::set_matrix() {
+    while (1) {
+        color_mtx2.lock();
+        color_image3 = color_image;
+        color_mtx2.unlock();
+		glm::mat4 model = StaticFunction::detectMarker(color_image3);
+        if (model != glm::mat4(1.0f)) {
+            vr.volren.model = model;
+            vr.volren.if_detected_marker = 1;
+        }
+        else {
+			vr.volren.if_detected_marker = 0;
+        }
+    }
 }
 
 void Work::getResult2(const cv::Mat& result_with_cone, const cv::Mat& result) {
@@ -528,6 +546,11 @@ int Work::resort_3D_bodylocation_list(std::vector<std::vector<float>>& body3Dloc
 	float min_tolerance = Constants::tolerance; // Minimum deviation
     size_t n = body3Dlocation_list.size();
     bool match_found = false;
+    vector<float> s;
+    if (scale == 0) {
+        scale = max(1.0f * Constants::tex3D_dim.x, 1.0f * Constants::tex3D_dim.y);
+		scale = max(scale, 1.0f * Constants::tex3D_dim.z);
+    }
     // Iterate over all combinations of three distinct points
     for (size_t i = 0; i < n - 2; ++i) {
         for (size_t j = i + 1; j < n - 1; ++j) {
@@ -572,19 +595,26 @@ int Work::resort_3D_bodylocation_list(std::vector<std::vector<float>>& body3Dloc
                     float max_dev = max({ dev1, dev2, dev3 });
 
 					std::cout << "min_tolerance: " << min_tolerance << std::endl;
-					std::cout << "s1: " << s1 << " s2: " << s2 << " s3: " << s3 << " s_mean: " << s_mean << " dev1: " << dev1 << " dev2: " << dev2 << " dev3: " << dev3 << " max_dev: " << max_dev << std::endl;
+					std::cout << "s1: " << s1 << " s2: " << s2 << " s3: " << s3 << " s_mean: " << s_mean << " dev1: " << dev1 << " dev2: " << dev2 << " dev3: " << dev3 << " max_dev: " << max_dev << "max_s" << max_s << std::endl;
 					// Check if the triangle is similar to the chest triangle
-                    if (max_dev < tolerance && max_dev < min_tolerance && max_s <= 1000) {
-						min_tolerance = max_dev;
-                        body3Dlocation_list_tmp = { a, b, c };
-                        //body3Dlocation_list = { a, b, c };
-                        match_found = true;
+                    if (max_dev < tolerance && max_dev < min_tolerance) {
+                        if (s1 <= scale * 1.3 && s1 >= scale * 0.7 && s2 <= scale * 1.3 && s2 >= scale * 0.7 && s3 <= scale * 1.3 && s3 >= scale * 0.7) {
+                            s = { s1, s2, s3 };
+                            min_tolerance = max_dev;
+                            body3Dlocation_list_tmp = { a, b, c };
+                            match_found = true;
+                        }
                     }
                 } while (next_permutation(perm.begin(), perm.end()));
             }
         }
     }
     if (match_found) {
+		// Êä³ös
+        std::cout << "vector s: ";
+		for (int i = 0; i < s.size(); i++) {
+			std::cout << s[i] << " ";
+		}
         body3Dlocation_list = body3Dlocation_list_tmp;
         std::cout << "the best tolerance is " << min_tolerance << std::endl;
         // sort the body3Dlocation_list in descending order of x

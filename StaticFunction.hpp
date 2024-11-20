@@ -10,6 +10,8 @@
 #include "AllEnum.hpp"
 #include "Eigen/Dense"
 #include <glm/glm.hpp>
+#include "constants.hpp"
+
 // º¯ÊýÉùÃ÷
 class StaticFunction
 {
@@ -40,5 +42,7 @@ public:
 	static float cal_vec3dist(glm::vec3 a, glm::vec3 b);
 	static std::vector<float>  ConeVertice(const k4a::image& k4aImage);
 	static cv::Point2d pixelToNDC(float x, float y);
+	static glm::mat4 detectMarker(const k4a::image& k4aImage);
+	static void convertCvMatToGlmMat(const cv::Mat& transformMatrix, glm::mat4& glmMatrix);
 };
 #endif

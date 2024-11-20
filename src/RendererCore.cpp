@@ -27,11 +27,38 @@ RendererCore::RendererCore(k4a::device& device, k4a_device_configuration_t& conf
     img_data_from_core = nullptr;
     this->device = &device;
 	this->config = &config;
-    //k4a::capture capture;
-    //if ((device).get_capture(&capture, std::chrono::milliseconds(5000))) {
-    //    color_image = capture.get_color_image();
-    //}
     vertices = {};
+
+    threshold = 0.0f;
+	if_detected_marker = 0;
+    segmentation = 0;
+	plane_a = 0;
+	plane_b = 0;
+	plane_c = 0;
+
+    // set model, projection, view matrix
+    glm::mat4 cubePoseMatrix = glm::mat4(
+        0.9607884553950903, -0.07179183067393458, -0.2678273268880558, -0.1956209865621451,
+        -0.07682767432524706, -0.9970093693783699, -0.008356185105593715, -0.06246427847121779,
+        -0.2664264484567742, 0.02860507682615588, -0.9634306914057075, 0.2517965325514948,
+        0, 0, 0, 1
+    );
+
+    cubePoseMatrix = glm::transpose(cubePoseMatrix);
+    model = cubePoseMatrix;
+
+    float fov_x = 92.75274f;
+    float fov_y = 61.11177f;
+    float fov_x_rad = glm::radians(fov_x);
+    float fov_y_rad = glm::radians(fov_y);
+    float aspect_ratio = tan(fov_x_rad / 2.0f) / tan(fov_y_rad / 2.0f);
+    projection = glm::perspective(fov_y_rad, aspect_ratio, 0.001f, 100.0f);
+
+
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -0.0f);
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 1.0f); // 朝向正 z 轴
+    glm::vec3 cameraUp = glm::vec3(0.0f, -1.0f, 0.0f); // y 轴向下
+    view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 }
 
 RendererCore::~RendererCore()
@@ -53,6 +80,7 @@ void RendererCore::setup()
 	glGenTextures(1, &vol_tex3D); //Generate a 3D Texture
     
 }
+
 void RendererCore::MySetup()
 {
 
@@ -61,6 +89,7 @@ void RendererCore::MySetup()
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
     GLuint textureLocation = glGetUniformLocation(cs_programID, "inputTexture");
     glUniform1i(textureLocation, 2);
 
@@ -69,64 +98,77 @@ void RendererCore::MySetup()
     glBufferData(GL_SHADER_STORAGE_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo); // Binding point 1 as per compute shader
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    //glGenVertexArrays(1, &VAO);
-    //glGenBuffers(1, &VBO);
-
-    //// 绑定 VAO
-    //glBindVertexArray(VAO);
-
-    //// 绑定 VBO，传递顶点数据
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
-
-    //// 配置顶点属性
-    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
-
-    //// 编译顶点着色器
-    //GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    //glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    //glCompileShader(vertexShader);
-
-    //// 检查编译错误
-    //int success;
-    //char infoLog[512];
-    //glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    //if (!success) {
-    //    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    //    std::cerr << "Vertex Shader Compilation Failed:\n" << infoLog << std::endl;
-    //}
-
-    //// 编译片段着色器
-    //GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    //glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    //glCompileShader(fragmentShader);
-
-    //// 检查编译错误
-    //glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    //if (!success) {
-    //    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-    //    std::cerr << "Fragment Shader Compilation Failed:\n" << infoLog << std::endl;
-    //}
-
-    //// 链接着色器程序
-    //shaderProgram = glCreateProgram();
-    //glAttachShader(shaderProgram, vertexShader);
-    //glAttachShader(shaderProgram, fragmentShader);
-    //glLinkProgram(shaderProgram);
-
-    //// 检查链接错误
-    //glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    //if (!success) {
-    //    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    //    std::cerr << "Shader Program Linking Failed:\n" << infoLog << std::endl;
-    //}
-
-    //// 删除着色器
-    //glDeleteShader(vertexShader);
-    //glDeleteShader(fragmentShader);
-
 }
+
+void RendererCore::MySetupCube()
+{
+    ourShader.initShader(Constants::graphic_vertex_shader.c_str(), Constants::graphic_fragement_shader.c_str());
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Constants::cube_vertices_size, Constants::cube_vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // texture coord attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+    unsigned char* data = stbi_load(Constants::texture_fragement_shader1.c_str(), &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    // texture 2
+    // ---------
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    data = stbi_load(Constants::texture_fragement_shader2.c_str(), &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    ourShader.use();
+    ourShader.setInt("texture1", 5);
+    ourShader.setInt("texture2", 6);
+    glUseProgram(cs_programID);
+}
+
 bool RendererCore::checkRawInfFile(std::string fn)
 {
     std::ifstream inf_file;
@@ -143,6 +185,18 @@ void RendererCore::setAlpha()
         glUniform1f(0, alpha_scale);
 }
 
+void RendererCore::setSegmentation()
+{
+    if (cs_programID)
+        glUniform1i(9, (segmentation) ? 1 : 0);
+}
+
+void RendererCore::setPlane()
+{
+    if (cs_programID)
+        glUniform3f(8, plane_a, plane_b, plane_c);
+}
+
 void RendererCore::setMinVal()
 {
     if(cs_programID)
@@ -151,6 +205,14 @@ void RendererCore::setMinVal()
             glUniform1i(2, min_val+1000);
         else
             glUniform1i(2, min_val);
+    }
+}
+
+void RendererCore::setThreShold()
+{
+    if (cs_programID)
+    {
+        glUniform1f(7, threshold);
     }
 }
 
@@ -250,13 +312,9 @@ void RendererCore::render()
 
 void RendererCore::render2()
 {
-	timer.start("render");
+    timer.start("render");
 
-	timer.start("RendererCode capture");
-    //k4a::capture capture;
-    //if ((*device).get_capture(&capture, std::chrono::milliseconds(5000))) {
-    //    color_image = capture.get_color_image();
-    //}
+    timer.start("RendererCode capture");
     const uint8_t* color_data = color_image.get_buffer();  // 获取图像数据指针
     timer.stop("RendererCode capture");
 
@@ -323,6 +381,86 @@ void RendererCore::render2()
     timer.stop("render");
 }
 
+void RendererCore::render_cube()
+{
+    timer.start("render");
+
+    timer.start("RendererCode capture");
+    const uint8_t* color_data = color_image.get_buffer();  // 获取图像数据指针
+    timer.stop("RendererCode capture");
+
+
+    timer.start("RendererCode transfrom");
+    glUseProgram(cs_programID);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, color_image.get_width_pixels(), color_image.get_height_pixels(), 0, GL_BGRA, GL_UNSIGNED_BYTE, color_data);
+
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+    timer.stop("RendererCode transfrom");
+
+    //**********************************************************************************
+    GLuint64 elapsed_time = 0;
+    GLuint query;
+    glGenQueries(1, &query);
+
+    if (main_cam.is_changed) {
+        std::cout << "in render setupUBO\n";
+        setupUBO(true);
+    }
+
+    glBindImageTexture(0, fbo_texID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+    glBeginQuery(GL_TIME_ELAPSED, query);
+    glDispatchCompute(workgroups_x, workgroups_y, 1);
+    glEndQuery(GL_TIME_ELAPSED);
+    glGetQueryObjectui64v(query, GL_QUERY_RESULT, &elapsed_time);
+    kerneltime_sum += (double)elapsed_time / 1000000.0;
+
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+
+
+    //*************************************************************************************
+    //使用着色器程序
+    if (if_detected_marker) {
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo_ID);
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
+        ourShader.use();
+        glActiveTexture(GL_TEXTURE5);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+        unsigned int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+        // pass them to the shaders (3 different ways)
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+        // note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once.
+        ourShader.setMat4("projection", projection);
+
+        // render box
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_ID); // Bind FBO to read from
+    glReadBuffer(GL_COLOR_ATTACHMENT0);             // Read from Color Attachment 0
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);      // Bind default framebuffer to draw to
+    glDrawBuffer(GL_BACK);                          // Draw to Back Buffer
+    glBlitFramebuffer(0, 0, framebuffer_size.x, framebuffer_size.y,
+        0, 0, framebuffer_size.x, framebuffer_size.y,
+        GL_COLOR_BUFFER_BIT,
+        GL_LINEAR
+    );
+    glUseProgram(cs_programID);
+    timer.stop("render");
+}
+
 bool RendererCore::saveImage(std::string fn, std::string ext)
 {
 	//std::cout << "saveImage Framebuffer Size: " << framebuffer_size.x << ", " << framebuffer_size.y << std::endl;
@@ -370,6 +508,14 @@ void RendererCore::setupFBO()
 	glBindTexture(GL_TEXTURE_2D, 0); //Unbind Texture
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texID, 0); //Attach Texture to Framebuffer
+    
+    // Create a renderbuffer object for depth and stencil attachment
+    GLuint rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, framebuffer_size.x, framebuffer_size.y);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER); //Check if Framebuffer is complete
 
     if(status != GL_FRAMEBUFFER_COMPLETE)
@@ -529,6 +675,9 @@ void RendererCore::readVolumeData(std::string fn)
 
     std::cout << "Dataset dimensions: " << tex3D_dim.x << ", " << tex3D_dim.y << ", " << tex3D_dim.z << std::endl;
     std::cout << "Dataset Aspect ratio: " << voxel_size.x << ", " << voxel_size.y << ", " << voxel_size.z << std::endl;
+	
+    Constants::tex3D_dim = tex3D_dim;
+    Constants::voxel_size = voxel_size;
 
     //Calculate Histogram
     int max_value = -1, min_value = 9000000, len = tex3D_dim.x * tex3D_dim.y * tex3D_dim.z;

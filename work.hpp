@@ -17,7 +17,7 @@ class GetSample;
 class Work
 {
 public:
-
+	float scale; // 用于缩放
 	RendererGUI vr;
 	k4a::image color_image; // 声明一个颜色图像，用于在类work中获取数据
 	k4a::image depth_image; // 声明一个深度图像，用于在类work中获取数据
@@ -56,6 +56,7 @@ public:
 			color_image = capture.get_color_image();
 			depth_image = capture.get_depth_image();
 		}
+		scale = 0;
 	}; // 构造函数
 
 	~Work() {}// 析构函数
@@ -73,6 +74,7 @@ public:
 	void capture_image();
 	void set_vertices();
 	void set_color_image_to_core();
+	void set_matrix();
 
 private:
 	k4a::image color_image2; // 声明一个颜色图像，用于在类work中获取数据

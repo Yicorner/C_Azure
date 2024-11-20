@@ -4,11 +4,18 @@
 #include "glad/glad.h"
 #include <vector>
 #include <string>
-#include "glm/vec3.hpp"
-#include "glm/vec2.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <memory> 
+#include <iostream>
+
 #include "Camera.h"
 #include "k4a/k4a.hpp"
 #include "MultiTimer.hpp"
+#include "shader_m.h"
+#include "constants.hpp"
+#include "stb_image.h"
 class RendererCore
 {
     public:
@@ -16,8 +23,13 @@ class RendererCore
         ~RendererCore();
         void setup();
         void MySetup();
+        void MySetupCube();
         void render();
         void render2();
+        void render_cube();
+        void setThreShold();
+        void setSegmentation();
+		void setPlane();
         Camera main_cam;
         unsigned char* img_data_from_core;
         glm::ivec2 window_size, framebuffer_size;
@@ -30,6 +42,14 @@ class RendererCore
         std::vector<float> vertices;
         GLuint VAO, VBO, shaderProgram;
         GLuint ssbo;
+		glm::mat4 model, projection, view;
+        int if_detected_marker;
+		GLuint texture1, texture2;
+        Shader  ourShader;
+        float threshold;
+        float plane_a, plane_b, plane_c;
+        bool segmentation;
+
     private:
         MultiTimer& timer = MultiTimer::getInstance();
         friend class RendererGUI;

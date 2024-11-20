@@ -64,42 +64,54 @@
 #include <string>
 #include <vector>
 #include "AllEnum.hpp"
+#include <glm/glm.hpp>
 
 namespace Constants {
-	extern BodyLocation body_location;
-	extern State state;
-	extern RealTimeDisplayState real_time_display_state;
+    extern BodyLocation body_location;
+    extern State state;
+    extern RealTimeDisplayState real_time_display_state;
 
-	extern float tolerance;
-	extern const int minval;
-	extern const int maxval;
-	extern const float alpha;
-	extern std::vector<float> volume_point_one;
-	extern std::vector<float> volume_point_two;
-	extern std::vector<float> volume_point_three;
-	extern std::string Shaderfile;
-	extern std::string Datafile;
+    extern float tolerance;
+    extern const int minval;
+    extern const int maxval;
+    extern const float alpha;
+    extern std::vector<float> volume_point_one;
+    extern std::vector<float> volume_point_two;
+    extern std::vector<float> volume_point_three;
+    extern std::string Shaderfile;
+    extern std::string Datafile;
 
-	extern std::string from_file_color_filename;
-	extern std::string from_file_depth_filename;
+    extern std::string from_file_color_filename;
+    extern std::string from_file_depth_filename;
 
-	extern std::string save_dir;
-	extern std::string window_name;
-	extern int if_multi_thread;
-	extern int if_log_file;
-	extern int if_real_time_display;
-	extern int if_origin_glfw_manager;
+    extern std::string save_dir;
+    extern std::string window_name;
+    extern int if_multi_thread;
+    extern int if_log_file;
+    extern int if_real_time_display;
+    extern int if_origin_glfw_manager;
 
-	extern int width;
-	extern int height;
+    extern int width;
+    extern int height;
 
-	extern int window_width;
-	extern int window_height;
+    extern int window_width;
+    extern int window_height;
 
-	extern int window_location_x;
-	extern int window_location_y;
+    extern int window_location_x;
+    extern int window_location_y;
 
-	extern int if_teapot;
-}
+    extern int if_teapot;
+    extern float cube_vertices[];
+    extern int cube_vertices_size;
+
+    extern std::string graphic_fragement_shader;
+    extern std::string graphic_vertex_shader;
+
+    extern std::string texture_fragement_shader1;
+    extern std::string texture_fragement_shader2;
+
+    extern glm::vec3 voxel_size;
+    extern glm::ivec3 tex3D_dim;
+};
 
 #endif // CONSTANTS_HPP

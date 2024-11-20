@@ -815,6 +815,122 @@ std::vector<float>  StaticFunction::ConeVertice(const k4a::image& k4aImage) {
     timer.stop("addCone");
 }
 
+
+glm::mat4  StaticFunction::detectMarker(const k4a::image& k4aImage) {
+    timer.start("detectMarker");
+    glm::mat4 result = glm::mat4(1.0f);
+    cv::Mat befres(1080, 1920, CV_8UC4, cv::Scalar(0, 0, 0, 0));
+    cv::Mat ref = StaticFunction::k4aImageToCvMat(k4aImage);
+    // 相机参数
+    double fov_x = 92.75274; // 水平视场角，单位：度
+    double fov_y = 61.11177; // 垂直视场角，单位：度
+    int image_width = 1920;
+    int image_height = 1080;
+    // 计算焦距fx和fy
+    double fx = (image_width / 2.0) / tan((fov_x * CV_PI / 180.0) / 2.0);
+    double fy = (image_height / 2.0) / tan((fov_y * CV_PI / 180.0) / 2.0);
+
+    // 主点坐标（假设在图像中心）
+    double cx = image_width / 2.0;
+    double cy = image_height / 2.0;
+
+    // 构建相机内参矩阵
+    cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) <<
+        fx, 0, cx,
+        0, fy, cy,
+        0, 0, 1);
+
+    // 假设无畸变
+    cv::Mat distCoeffs = cv::Mat::zeros(5, 1, CV_64F);
+
+    // 转换为灰度图
+    cv::Mat gray;
+    cv::cvtColor(ref, gray, cv::COLOR_BGR2GRAY);
+
+    // 定义ArUco字典
+    cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
+
+    // 定义检测参数
+    cv::aruco::DetectorParameters parameters;
+
+    // 检测标记
+    std::vector<int> ids;
+    std::vector<std::vector<cv::Point2f>> corners, rejected;
+    cv::aruco::ArucoDetector detector(dictionary, parameters);
+
+    detector.detectMarkers(gray, corners, ids, rejected);
+
+
+    double coneHeight = 0.03;  // 圆锥体的高度
+    double coneRadius = 0.010; // 圆锥体底面半径
+
+
+    // 如果检测到标记
+    if (ids.size() > 0)
+    {
+        // 假设标记的实际边长为0.05米（5厘米），请根据实际情况修改
+        float markerLength = 0.05f;
+
+        // 估计姿态
+        std::vector<cv::Vec3d> rvecs, tvecs;
+        cv::aruco::estimatePoseSingleMarkers(corners, markerLength, cameraMatrix, distCoeffs, rvecs, tvecs);
+
+        // 绘制结果并输出
+        for (size_t i = 0; i < ids.size(); i++)
+        {
+            // 绘制标记边框
+            cv::cvtColor(befres, befres, cv::COLOR_BGRA2BGR);
+            std::cout << befres.channels() << " " << befres.total() << " " << befres.size << std::endl;
+            cv::aruco::drawDetectedMarkers(befres, corners, ids);
+
+            // 绘制坐标轴
+            // 如果aruco命名空间下没有drawAxis，可以使用cv::drawFrameAxes
+            cv::drawFrameAxes(befres, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 0.5f);
+
+            //rvecs[i][0] *= -1;
+            //rvecs[i][1] *= -1;
+            //rvecs[i][2] *= -1;
+            //double angle = cv::norm(rvecs[i]);  // 获取旋转角度（弧度）
+            //double new_angle = angle + CV_PI;  // 增加 180 度
+            //rvecs[i] = rvecs[i] * (new_angle / angle);
+            //std::cout << rvecs[i] << std::endl;
+
+            // 输出标记ID、坐标和朝向
+            /*std::cout << "标记ID: " << ids[i] << std::endl;
+            std::cout << "平移向量 tvec: [" << tvecs[i][0] << ", " << tvecs[i][1] << ", " << tvecs[i][2] << "]" << std::endl;
+            std::cout << "旋转向量 rvec: [" << rvecs[i][0] << ", " << rvecs[i][1] << ", " << rvecs[i][2] << "]" << std::endl;
+            std::cout << std::endl;*/
+
+            // 将旋转向量转换为旋转矩阵
+            cv::Mat R;
+            cv::Rodrigues(rvecs[i], R);
+            //std::cout << R.at<double>(0, 0) << " " << R.at<double>(0, 1) << " " << R.at<double>(0, 2) << std::endl;
+
+            // 创建旋转平移矩阵
+            cv::Mat Rt = cv::Mat::zeros(3, 4, CV_64F);
+            R.copyTo(Rt(cv::Rect(0, 0, 3, 3)));  // 将旋转矩阵 R 复制到 Rt 的前 3 列
+
+            // 将平移向量 tvec 转换为 cv::Mat 并赋值给 Rt 的最后一列
+            cv::Mat tvecMat = (cv::Mat_<double>(3, 1) << tvecs[i][0], tvecs[i][1], tvecs[i][2]);
+            tvecMat.copyTo(Rt.col(3));  // 确保 tvecMat 格式与 Rt 的第四列匹配
+
+
+            // 创建4x4齐次变换矩阵
+            cv::Mat transformMatrix = cv::Mat::eye(4, 4, CV_64F);  // 创建一个4x4单位矩阵
+            Rt.copyTo(transformMatrix(cv::Rect(0, 0, 4, 3)));  // 将3x4矩阵复制到4x4矩阵的前3行
+            convertCvMatToGlmMat(transformMatrix, result);
+            // 打印旋转平移矩阵
+            std::cout << "4x4旋转平移矩阵: " << std::endl << transformMatrix << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "未检测到ArUco标记。" << std::endl;
+    }
+    return result;
+    timer.stop("detectMarker");
+}
+
 // 将像素坐标转换为归一化设备坐标（NDC）
 cv::Point2d StaticFunction::pixelToNDC(float x, float y) {
     cv::Point2d ndc;
@@ -1041,27 +1157,33 @@ glm::mat4 StaticFunction::get_transform(BodyLocation bodylocation, std::vector<s
     //    -64.1256f, -7.67211f, 159.326f,  // 第二行是一个点
     //    -13.3063f, -8.67443f, 156.485f     // 第三行是一个点
     //);
+	glm::mat3 volume = glm::mat3(
+		Constants::volume_point_one[0], Constants::volume_point_one[1], Constants::volume_point_one[2],
+		Constants::volume_point_two[0], Constants::volume_point_two[1], Constants::volume_point_two[2],
+		Constants::volume_point_three[0], Constants::volume_point_three[1], Constants::volume_point_three[2]
+	);
     glm::mat3 depthCamera(
         body3Dlocation_list[0][0], body3Dlocation_list[0][1], body3Dlocation_list[0][2],  // 第一行是一个点
         body3Dlocation_list[1][0], body3Dlocation_list[1][1], body3Dlocation_list[1][2],  // 第二行是一个点
         body3Dlocation_list[2][0], body3Dlocation_list[2][1], body3Dlocation_list[2][2]     // 第三行是一个点
     );
     glm::mat4 camera2fakemanMat;
-    if (bodylocation == BodyLocation::CHEST)
-    {
-        camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanchest);
-    }
-    else if (bodylocation == BodyLocation::HEAD)
-    {
-        camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanhead);
-    }
-    else if (bodylocation == BodyLocation::ABDOMEN)
-    {
-        camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanabdo);
-    }
-    else if (bodylocation == BodyLocation::TRUEMANLEG) {
-        camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, trueman2leg);
-    }
+    //if (bodylocation == BodyLocation::CHEST)
+    //{
+    //    camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanchest);
+    //}
+    //else if (bodylocation == BodyLocation::HEAD)
+    //{
+    //    camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanhead);
+    //}
+    //else if (bodylocation == BodyLocation::ABDOMEN)
+    //{
+    //    camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, fakemanabdo);
+    //}
+    //else if (bodylocation == BodyLocation::TRUEMANLEG) {
+    //    camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, trueman2leg);
+    //}
+	camera2fakemanMat = transform_depthCamera2fakeman(depthCamera, volume);
     camera2fakemanMat = glm::transpose(camera2fakemanMat);
     return camera2fakemanMat;
     //setViewMatrix(glm::vec4(camera2fakemanMat[3]), glm::vec4(camera2fakemanMat[0]), glm::vec4(camera2fakemanMat[1]), glm::vec4(camera2fakemanMat[2]));
@@ -1180,4 +1302,17 @@ glm::mat4 StaticFunction::transform_depthCamera2fakeman(glm::mat3 depthCameraCol
 
 
     return camera2fakemanMat;
+}
+
+
+void StaticFunction::convertCvMatToGlmMat(const cv::Mat& transformMatrix, glm::mat4& glmMatrix) {
+    // 确保 cv::Mat 是 4x4 大小，并且是 CV_64F 类型
+    CV_Assert(transformMatrix.rows == 4 && transformMatrix.cols == 4 && transformMatrix.type() == CV_64F);
+
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            glmMatrix[i][j] = static_cast<float>(transformMatrix.at<double>(i, j));
+        }
+    }
+	glmMatrix = glm::transpose(glmMatrix);
 }

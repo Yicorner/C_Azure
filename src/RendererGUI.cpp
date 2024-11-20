@@ -110,6 +110,7 @@ void RendererGUI::run()
 
     if (Constants::if_multi_thread == 3) {
         volren.MySetup();
+        volren.MySetupCube();
     }
     int initail_load = 1;
     while(!glfwWindowShouldClose(glfw_manager.window))
@@ -175,7 +176,7 @@ void RendererGUI::run()
             std::cout << "Rendering..." << std::endl;
             if (Constants::if_multi_thread == 3)
             {
-                volren.render2();
+                volren.render_cube();
             }
             else {
                 volren.render();
@@ -433,6 +434,19 @@ void RendererGUI::showTools()
         showHelpMarker("Use Ctrl+Click to input value.");
         ImGui::PopItemWidth();
 
+        ImGui::PushItemWidth(130);
+        if (ImGui::SliderFloat("Threshold", &volren.threshold, 0.0f, 1.0f, "%.3f"))
+            volren.setThreShold();
+        ImGui::SameLine();
+        showHelpMarker("Use Ctrl+Click to input value.");
+        ImGui::PopItemWidth();
+        
+        if (ImGui::Checkbox("Segmentation", &volren.segmentation)) {
+            volren.setSegmentation();
+        }
+        ImGui::SameLine();
+        showHelpMarker("Check to use Maximum Intensity Projection.");
+
         if(ImGui::Checkbox("MIP", &volren.use_mip))
             volren.setMIP();
         ImGui::SameLine();
@@ -490,8 +504,26 @@ void RendererGUI::showHounsfieldScale()
         ImGui::SameLine();
         showHelpMarker("Use this to view a certain range of values. For 16 bit data the values recorded are probably in Hounsfield Units. Use the below table as reference for setting the range.");
 
-        ImGui::Separator();
 
+        ImGui::SetCursorPosX(25); // 第一控件的 X 轴缩进
+        if (ImGui::DragFloat("A", &volren.plane_a, 0.1f, -100.0f, 100.0f, "A: %.2f"))
+        {
+            volren.setPlane();
+        }
+
+        ImGui::SetCursorPosX(25); // 第二控件的 X 轴缩进
+        if (ImGui::DragFloat("B", &volren.plane_b, 0.1f, -100.0f, 100.0f, "B: %.2f"))
+		{
+			volren.setPlane();
+        }
+
+        ImGui::SetCursorPosX(25); // 第三控件的 X 轴缩进
+        if (ImGui::DragFloat("C", &volren.plane_c, 0.1f, -100.0f, 100.0f, "C: %.2f"))
+		{
+			volren.setPlane();
+        }
+
+        ImGui::Separator();
         ImVec2 text_size = ImGui::CalcTextSize("Hounsfield Scale", NULL, true, 270);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((ImGui::GetWindowSize().x - text_size.x) / 2));
         ImGui::Text("Hounsfield Scale");

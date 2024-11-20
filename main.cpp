@@ -9,6 +9,7 @@
 #include <fstream>  // 需要包含这个头文件
 #include <locale>
 #include <codecvt>
+#define STB_IMAGE_IMPLEMENTATION
 
 #include "GetCords.hpp"
 #include "realTimeDisplay.hpp"
@@ -42,6 +43,11 @@ int main()
     }
 
 
+    // 将每个元素除以 10
+    for (int i = 0; i < Constants::cube_vertices_size; ++i) {
+        if (Constants::cube_vertices[i] != 0.0f && Constants::cube_vertices[i] != 1.0f)
+            Constants::cube_vertices[i] /= 15.0f;
+    }
 
     // Open Kinect device
     k4a::device device;
